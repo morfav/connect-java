@@ -31,7 +31,7 @@ public class FilteringClientLoggingFilter extends BaseFilteringLogger implements
 
   @Inject
 	public FilteringClientLoggingFilter(JerseyFiltering jerseyFiltering) {
-		super(jerseyFiltering, LoggingFeature.Verbosity.PAYLOAD_ANY);
+		super(jerseyFiltering);
 	}
 
 	protected void recordOutgoing(ClientRequestContext context, String action) {

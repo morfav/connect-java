@@ -18,12 +18,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -41,18 +36,29 @@ abstract class BaseFilteringLogger implements WriterInterceptor {
 
 	/**
 	 * Creates a logging filter with custom logger and entity logging turned on, but potentially limiting the size
-	 * of entity to be buffered and logged.
+	 * of entity to be buffered and logged. Verbosity is defined by {@link JerseyFiltering#getVerbosity()}
+     * and can be configured via jersey.logging.verbosity environment variable.
 	 *
-	 * @param verbosity     verbosity of the logged messages.
 	 */
-	BaseFilteringLogger(JerseyFiltering jerseyFiltering, LoggingFeature.Verbosity verbosity) {
-		this.verbosity = verbosity;
-		this.maxEntitySize = Math.max(0, jerseyFiltering.maxBodySize());;
-		this.jerseyFiltering = jerseyFiltering;
-	}
+    BaseFilteringLogger(JerseyFiltering jerseyFiltering) {
+        this.jerseyFiltering = jerseyFiltering;
+        this.verbosity = resolveVerbosity(jerseyFiltering.getVerbosity());
+        this.maxEntitySize = Math.max(0, jerseyFiltering.maxBodySize());;
+    }
 
+    private LoggingFeature.Verbosity resolveVerbosity(String verbosity) {
+        try {
+            return LoggingFeature.Verbosity.valueOf(verbosity);
+        } catch (Exception e) {
+            LoggingFeature.Verbosity defaultVerbosity = LoggingFeature.Verbosity.PAYLOAD_ANY;
+            String values = Arrays.toString(LoggingFeature.Verbosity.values());
+            logger.warn("Failed to parse '{}' as verbosity, allowed values are: {}. Defaulting to {}",
+                    verbosity, values, defaultVerbosity, e);
+            return defaultVerbosity;
+        }
+    }
 
-	/**
+    /**
 	 * Prefix will be printed before requests
 	 */
 	static final String REQUEST_PREFIX = "> ";

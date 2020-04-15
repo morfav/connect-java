@@ -37,6 +37,17 @@ jersey.logging.exclude-entirely-uris=/health/liveness,/heath/readiness,/metrics
 
 requires: connect-java-logging (it augments the log), connect-app-declare-log (for configuration)
 
+Logging verbosity can be defined like this:
+
+----
+jersey.logging.verbosity=PAYLOAD_TEXT
+----
+
+Available values are:
+- HEADERS_ONLY,
+- PAYLOAD_TEXT,
+- PAYLOAD_ANY
+
 ==== InfrastructureConfiguration
 
 This enable:
