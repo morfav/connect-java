@@ -4,6 +4,7 @@ import cd.connect.app.config.ConfigKey;
 import cd.connect.app.config.DeclaredConfigResolver;
 import cd.connect.context.ConnectContext;
 import org.glassfish.jersey.logging.Constants;
+import org.glassfish.jersey.logging.LoggingFeature;
 
 import java.util.Objects;
 import java.util.Set;
@@ -38,6 +39,9 @@ public class JerseyFilteringConfiguration implements JerseyFiltering {
 
   @ConfigKey("jersey.logging.exclude-entirely-uris")
   protected String excludeEntirelyUris = "";
+
+  @ConfigKey("jersey.logging.verbosity")
+  protected String verbosity = LoggingFeature.Verbosity.PAYLOAD_ANY.name();
 
   public JerseyFilteringConfiguration() {
     DeclaredConfigResolver.resolve(this);
@@ -90,6 +94,11 @@ public class JerseyFilteringConfiguration implements JerseyFiltering {
 
   public String getTracing() {
     return tracing;
+  }
+
+  @Override
+  public String getVerbosity() {
+    return verbosity;
   }
 }
 

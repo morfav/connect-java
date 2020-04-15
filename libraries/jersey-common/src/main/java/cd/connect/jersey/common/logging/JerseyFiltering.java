@@ -1,5 +1,7 @@
 package cd.connect.jersey.common.logging;
 
+import org.glassfish.jersey.logging.LoggingFeature;
+
 import javax.ws.rs.core.Configurable;
 
 /**
@@ -12,6 +14,7 @@ public interface JerseyFiltering {
 	boolean excludePayloadForUri(String uriPath);
 	boolean excludeForUri(String uriPath);
 	int maxBodySize();
-  String getExclude();
-  String getTracing();
+	String getExclude();
+	String getTracing();
+	String getVerbosity();
 }
