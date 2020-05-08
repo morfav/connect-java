@@ -134,7 +134,7 @@
 				<configuration>
 					<filtering>false</filtering>
 					<tiles>
-						<tile>cd.connect.tiles:tile-java:[1.2, 2)</tile>
+						<tile>cd.connect.tiles:tile-java:[1.3, 2)</tile>
 					</tiles>
 				</configuration>
 			</plugin>
