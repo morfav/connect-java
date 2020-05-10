@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>cd.connect.maven</groupId>
+	<artifactId>merge-yaml-plugin-two-files</artifactId>
+	<version>1.0-SNAPSHOT</version>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>@project.groupId@</groupId>
+				<artifactId>@project.artifactId@</artifactId>
+				<version>@project.version@</version>
+				<executions>
+					<execution>
+						<id>two-files</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>mergeYaml</goal>
+						</goals>
+						<configuration>
+							<files>
+								<file>src/main/yaml/one.yaml</file>
+								<file>src/main/yaml/two.yaml</file>
+							</files>
+							<finalYaml>${project.build.directory}/final.yaml</finalYaml>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
