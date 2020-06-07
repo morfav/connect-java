@@ -4,8 +4,8 @@ package {{package}}.impl;
 
 import cd.connect.openapi.support.ApiClient;
 import cd.connect.openapi.support.ApiResponse;
-import {{package}}.{{classname}}Service;
-import {{package}}.{{classname}}ClientService;
+import {{package}}.{{classname}};
+import {{package}}.{{classname}}Client;
 import cd.connect.openapi.support.Pair;
 import javax.ws.rs.BadRequestException;
 
@@ -27,7 +27,7 @@ import java.util.Map;
 
 {{>generatedAnnotation}}
 {{#operations}}
-public class {{classname}}ServiceImpl implements {{classname}}Service, {{classname}}ClientService {
+public class {{classname}}ServiceImpl implements {{classname}}, {{classname}}Client {
   private ApiClient {{localVariablePrefix}}apiClient;
 
   public {{classname}}ServiceImpl(ApiClient apiClient) {
@@ -65,7 +65,10 @@ public class {{classname}}ServiceImpl implements {{classname}}Service, {{classna
   {{/isDeprecated}}
   public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}Response {{/returnType}}{{operationId}}({{#allParams}}{{>serviceQueryParams}}{{>pathParams}}{{>serviceBodyParams}}{{>serviceFormParams}}{{#hasMore}}, {{/hasMore}}{{/allParams}}) {
   {{#returnType}}
-    return {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}).getData();
+    {{^vendorExtensions.x-java-is-response-void}}return {{/vendorExtensions.x-java-is-response-void}}
+     {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}})
+    {{^vendorExtensions.x-java-is-response-void}}.getData(){{/vendorExtensions.x-java-is-response-void}}
+    ;
   {{/returnType}}{{^returnType}}
     {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
   {{/returnType}}
@@ -93,7 +96,10 @@ public class {{classname}}ServiceImpl implements {{classname}}Service, {{classna
   {{/isDeprecated}}
   public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}Response {{/returnType}}{{operationId}}({{#allParams}}{{>serviceQueryParams}}{{>pathParams}}{{>serviceBodyParams}}{{>serviceFormParams}}{{#hasMore}}, {{/hasMore}}{{/allParams}}{{#hasParams}}, {{/hasParams}}Map<String, String> extraHeaders) {
   {{#returnType}}
-    return {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}{{#hasParams}}, {{/hasParams}}extraHeaders).getData();
+    {{^vendorExtensions.x-java-is-response-void}}return {{/vendorExtensions.x-java-is-response-void}}
+    {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}{{#hasParams}}, {{/hasParams}}extraHeaders)
+    {{^vendorExtensions.x-java-is-response-void}}.getData(){{/vendorExtensions.x-java-is-response-void}}
+    ;
   {{/returnType}}{{^returnType}}
     {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}{{#hasParams}}, {{/hasParams}}extraHeaders);
   {{/returnType}}
@@ -106,7 +112,7 @@ public class {{classname}}ServiceImpl implements {{classname}}Service, {{classna
     * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}
   {{/allParams}}
   {{#returnType}}
-    * @return ApiResponse&lt;{{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Void{{/returnType}}&gt;
+    * @return ApiResponse&lt;{{#vendorExtensions.x-java-is-response-void}}Void{{/vendorExtensions.x-java-is-response-void}}{{^vendorExtensions.x-java-is-response-void}}{{{returnType}}}{{/vendorExtensions.x-java-is-response-void}}>
   {{/returnType}}
   {{#isDeprecated}}
     * @deprecated
@@ -119,7 +125,7 @@ public class {{classname}}ServiceImpl implements {{classname}}Service, {{classna
   {{#isDeprecated}}
     @Deprecated
   {{/isDeprecated}}
-  public ApiResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {{operationId}}WithHttpInfo({{#allParams}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}) {
+  public ApiResponse<{{#vendorExtensions.x-java-is-response-void}}Void{{/vendorExtensions.x-java-is-response-void}}{{^vendorExtensions.x-java-is-response-void}}{{{returnType}}}{{/vendorExtensions.x-java-is-response-void}}> {{operationId}}WithHttpInfo({{#allParams}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}) {
   {{#returnType}}
       return {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}{{#hasParams}}, {{/hasParams}}null);
   {{/returnType}}{{^returnType}}
@@ -135,7 +141,7 @@ public class {{classname}}ServiceImpl implements {{classname}}Service, {{classna
    * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}
    {{/allParams}}
    {{#returnType}}
-   * @return ApiResponse&lt;{{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Void{{/returnType}}&gt;
+   * @return ApiResponse&lt;{{#vendorExtensions.x-java-is-response-void}}Void{{/vendorExtensions.x-java-is-response-void}}{{^vendorExtensions.x-java-is-response-void}}{{{returnType}}}{{/vendorExtensions.x-java-is-response-void}}>
    {{/returnType}}
    {{#isDeprecated}}
    * @deprecated
@@ -148,7 +154,7 @@ public class {{classname}}ServiceImpl implements {{classname}}Service, {{classna
   {{#isDeprecated}}
   @Deprecated
   {{/isDeprecated}}
-  public ApiResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {{operationId}}WithHttpInfo({{#allParams}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}{{#hasParams}}, {{/hasParams}}Map<String, String> extraHeaders) {
+  public ApiResponse<{{#vendorExtensions.x-java-is-response-void}}Void{{/vendorExtensions.x-java-is-response-void}}{{^vendorExtensions.x-java-is-response-void}}{{{returnType}}}{{/vendorExtensions.x-java-is-response-void}}> {{operationId}}WithHttpInfo({{#allParams}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}{{#hasParams}}, {{/hasParams}}Map<String, String> extraHeaders) {
     Object {{localVariablePrefix}}localVarPostBody = {{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}new Object(){{/bodyParam}};
     {{#allParams}}{{#required}}
     // verify the required parameter '{{paramName}}' is set
@@ -156,8 +162,8 @@ public class {{classname}}ServiceImpl implements {{classname}}Service, {{classna
       throw new BadRequestException("Missing the required parameter '{{paramName}}' when calling {{operationId}}");
     }
     {{/required}}{{/allParams}}
-    // create path and map variables {{{path}}}
-    String {{localVariablePrefix}}localVarPath = "{{{path}}}"{{#pathParams}}
+    // create path and map variables {{{baseName}}}{{{path}}}
+    String {{localVariablePrefix}}localVarPath = "{{{baseName}}}{{{path}}}"{{#pathParams}}
       .replaceAll("\\{" + "{{baseName}}" + "\\}", {{localVariablePrefix}}apiClient.escapeString({{{paramName}}}.toString())){{/pathParams}};
 
     // query params
@@ -194,7 +200,7 @@ public class {{classname}}ServiceImpl implements {{classname}}Service, {{classna
     String[] {{localVariablePrefix}}localVarAuthNames = new String[] { {{#authMethods}}"{{name}}"{{#hasMore}}, {{/hasMore}}{{/authMethods}} };
 
     {{#returnType}}
-    GenericType<{{{returnType}}}> {{localVariablePrefix}}localVarReturnType = new GenericType<{{{returnType}}}>() {};
+    GenericType<{{#vendorExtensions.x-java-is-response-void}}Void{{/vendorExtensions.x-java-is-response-void}}{{^vendorExtensions.x-java-is-response-void}}{{{returnType}}}{{/vendorExtensions.x-java-is-response-void}}> {{localVariablePrefix}}localVarReturnType = new GenericType<{{#vendorExtensions.x-java-is-response-void}}Void{{/vendorExtensions.x-java-is-response-void}}{{^vendorExtensions.x-java-is-response-void}}{{{returnType}}}{{/vendorExtensions.x-java-is-response-void}}>() {};
     return {{localVariablePrefix}}apiClient.invokeAPI({{localVariablePrefix}}localVarPath, "{{httpMethod}}", {{localVariablePrefix}}localVarQueryParams, {{localVariablePrefix}}localVarPostBody, {{localVariablePrefix}}localVarHeaderParams, {{localVariablePrefix}}localVarFormParams, {{localVariablePrefix}}localVarAccept, {{localVariablePrefix}}localVarContentType, {{localVariablePrefix}}localVarAuthNames, {{localVariablePrefix}}localVarReturnType);
     {{/returnType}}{{^returnType}}
     return {{localVariablePrefix}}apiClient.invokeAPI({{localVariablePrefix}}localVarPath, "{{httpMethod}}", {{localVariablePrefix}}localVarQueryParams, {{localVariablePrefix}}localVarPostBody, {{localVariablePrefix}}localVarHeaderParams, {{localVariablePrefix}}localVarFormParams, {{localVariablePrefix}}localVarAccept, {{localVariablePrefix}}localVarContentType, {{localVariablePrefix}}localVarAuthNames, null);

@@ -1,0 +1,69 @@
+openapi: 3.0.1
+info:
+  title: ManagementResourceApi
+  description: Sample taken from random parts of the FeatureHub-IO (https://featurehub.io) API
+  version: "1.1.1"
+paths:
+  /mr-api/authentication/{id}/replaceTempPassword:
+    parameters:
+      - name: id
+        description: "The id of the person to replace temporary password for"
+        in: path
+        schema:
+          type: string
+        required: true
+      - name: includeGroups
+        description: "Include groups for this this portfolio in results"
+        in: query
+        schema:
+          type: boolean
+      - name: includeApplications
+        description: "Include applications for this portfolio in results"
+        in: query
+        schema:
+          type: boolean
+    put:
+      tags:
+        - AuthService
+      description: "Replace temporary password"
+      x-java-annotations: "@io.featurehub.mr.api.AllowedDuringPasswordReset"
+      security:
+        - bearerAuth: []
+      operationId: replaceTempPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordReset"
+      responses:
+        "200":
+          description: "Successfully reset temporary password"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenizedPerson"
+components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT    # optional, arbitrary value for documentation purposes
+  schemas:
+    PasswordReset:
+      required:
+        - password
+      properties:
+        password:
+          type: string
+        reactivate:
+          type: boolean
+    TokenizedPerson:
+      required:
+        - accessToken
+        - refreshToken
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string

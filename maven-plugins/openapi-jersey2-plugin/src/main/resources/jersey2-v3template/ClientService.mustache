@@ -35,8 +35,8 @@ import javax.ws.rs.*;
 {{#hasConsumes}}@Consumes({ {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}
 {{#hasProduces}}@Produces({ {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/hasProduces}}
 {{#operations}}
-  @Path("/{{baseName}}")
-  public interface {{classname}}ClientService {
+  @Path("/{{apiName}}")
+  public interface {{classname}}Client {
 
   {{#operation}}
     /**
@@ -112,7 +112,7 @@ import javax.ws.rs.*;
     {{#isDeprecated}}
       @Deprecated
     {{/isDeprecated}}
-    public ApiResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {{operationId}}WithHttpInfo({{#allParams}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
+    public ApiResponse<{{#vendorExtensions.x-java-is-response-void}}Void{{/vendorExtensions.x-java-is-response-void}}{{^vendorExtensions.x-java-is-response-void}}{{{returnType}}}{{/vendorExtensions.x-java-is-response-void}}> {{operationId}}WithHttpInfo({{#allParams}}{{{dataType}}} {{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}});
   {{/operation}}
     }
 {{/operations}}

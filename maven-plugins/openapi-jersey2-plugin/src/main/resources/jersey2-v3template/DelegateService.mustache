@@ -1,0 +1,62 @@
+package {{package}};
+
+import cd.connect.openapi.support.ApiClient;
+import cd.connect.openapi.support.ApiResponse;
+import cd.connect.openapi.support.Pair;
+import javax.ws.rs.BadRequestException;
+
+import javax.ws.rs.core.GenericType;
+import java.io.InputStream;
+
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+
+{{#imports}}import {{import}};
+{{/imports}}
+
+{{^fullJavaUtil}}
+  import java.util.ArrayList;
+  import java.util.HashMap;
+  import java.util.List;
+  import java.util.Map;
+{{/fullJavaUtil}}
+
+{{>generatedAnnotation}}
+{{#operations}}
+  public interface {{{classname}}}Delegate {
+
+  {{#operation}}
+
+    {{#vendorExtensions.x-has-delegator-holder}}
+      static class {{{vendorExtensions.x-class-delegator-holder}}} {
+      {{#vendorExtensions.x-delegator-holder-params}}
+        public {{{dataType}}} {{paramName}};
+      {{/vendorExtensions.x-delegator-holder-params}}
+      }
+    {{/vendorExtensions.x-has-delegator-holder}}
+
+
+    /**
+    * {{summary}}
+    * {{notes}}
+    * @see {{{classname}}}#{{{operationId}}}
+    {{#isDeprecated}}
+      * @deprecated
+    {{/isDeprecated}}
+    {{#externalDocs}}
+      * {{description}}
+      * @see <a href="{{url}}">{{summary}} Documentation</a>
+    {{/externalDocs}}
+    */
+    public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}Response {{/returnType}}{{operationId}}(
+      {{#vendorExtensions.x-has-java-params}}
+        {{{vendorExtensions.x-java-params-plus-types}}}
+      {{/vendorExtensions.x-has-java-params}}
+      {{#vendorExtensions.x-has-delegator-holder}}
+        {{#vendorExtensions.x-has-java-params}},{{/vendorExtensions.x-has-java-params}}
+        {{{vendorExtensions.x-class-delegator-holder}}} holder
+      {{/vendorExtensions.x-has-delegator-holder}}
+    {{#authMethods}}{{#hasParams}}, {{/hasParams}}SecurityContext securityContext{{/authMethods}});
+  {{/operation}}
+  }
+{{/operations}}

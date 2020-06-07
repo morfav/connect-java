@@ -35,8 +35,8 @@ import javax.validation.constraints.*;
 {{#hasConsumes}}@Consumes({ {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}
 {{#hasProduces}}@Produces({ {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/hasProduces}}
 {{#operations}}
-@Path("/{{baseName}}")
-public interface {{classname}}Service {
+@Path("/{{apiName}}")
+public interface {{classname}} {
 
   {{#operation}}
   /**
@@ -56,16 +56,6 @@ public interface {{classname}}Service {
    * @see <a href="{{url}}">{{summary}} Documentation</a>
    {{/externalDocs}}
    */
-  @io.swagger.annotations.ApiOperation(value = "{{{summary}}}", notes = "{{{notes}}}", response = {{{returnBaseType}}}.class{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}}, authorizations = {
-  {{#authMethods}}@io.swagger.annotations.Authorization(value = "{{name}}"{{#isOAuth}}, scopes = {
-  {{#scopes}}@io.swagger.annotations.AuthorizationScope(scope = "{{scope}}", description = "{{description}}"){{#hasMore}},
-  {{/hasMore}}{{/scopes}}
-  }{{/isOAuth}}){{#hasMore}},
-  {{/hasMore}}{{/authMethods}}
-  }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}",{{/vendorExtensions.x-tags}} })
-  @io.swagger.annotations.ApiResponses(value = { {{#responses}}
-    @io.swagger.annotations.ApiResponse(code = {{{code}}}, message = "{{{message}}}", response = {{{baseType}}}.class{{#containerType}}, responseContainer = "{{{containerType}}}"{{/containerType}}){{#hasMore}},
-    {{/hasMore}}{{/responses}} })
   @{{httpMethod}}{{#subresourceOperation}}
     @Path("{{path}}"){{/subresourceOperation}}{{#hasConsumes}}
     @Consumes({ {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}{{#hasProduces}}

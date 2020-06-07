@@ -1,24 +1,41 @@
 package cd.connect.openapi;
 
 
+import com.google.common.io.CharSource;
+import com.google.common.io.Files;
+import com.google.googlejavaformat.java.Formatter;
+import com.google.googlejavaformat.java.FormatterException;
+import com.google.googlejavaformat.java.JavaFormatterOptions;
 import io.swagger.v3.oas.models.Operation;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.openapitools.codegen.CliOption;
 import org.openapitools.codegen.CodegenConfig;
 import org.openapitools.codegen.CodegenConstants;
 import org.openapitools.codegen.CodegenModel;
 import org.openapitools.codegen.CodegenOperation;
+import org.openapitools.codegen.CodegenParameter;
 import org.openapitools.codegen.CodegenProperty;
 import org.openapitools.codegen.SupportingFile;
 import org.openapitools.codegen.languages.AbstractJavaJAXRSServerCodegen;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.openapitools.codegen.utils.StringUtils.camelize;
 
 public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implements CodegenConfig {
+  private static final Logger log = LoggerFactory.getLogger(Jersey2V3ApiGenerator.class);
   private static final String LIBRARY_NAME = "jersey2-api";
   private static final String JERSEY2_TEMPLATE_FOLDER = "jersey2-v3template";
   private static final String SERVICE_ADDRESS = "serviceAddress";
@@ -46,6 +63,11 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
     cliOptions.add(new CliOption("suppressIgnoreUnknown", "Don't add the ignore unknown to the generated models"));
 
 
+    if (this.typeMapping == null) {
+      this.typeMapping = new HashMap<>();
+    }
+
+    this.typeMapping.put("void", "Void");
 
     // override the location
     embeddedTemplateDir = templateDir = JERSEY2_TEMPLATE_FOLDER;
@@ -104,6 +126,11 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
     if (additionalProperties.get("server-security") != null) {
       apiTemplateFiles.put("SecurityService.mustache", ".java");
     }
+    if (additionalProperties.get("server-delegate") != null) {
+      apiTemplateFiles.put("DelegateServerService.mustache", ".java");
+      apiTemplateFiles.put("DelegateService.mustache", ".java");
+      apiTemplateFiles.put("SecurityService.mustache", ".java");
+    }
 
 //    apiTemplateFiles.put("Configuration.mustache", ".java");
 
@@ -127,9 +154,15 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
     }
   }
 
+
+
   @Override
   public Map<String, Object> postProcessOperationsWithModels(Map<String, Object> objs, List<Object> allModels) {
     List<CodegenOperation> codegenOperations = getCodegenOperations(objs);
+
+    if (codegenOperations.size() > 0) {
+      objs.put("apiName", codegenOperations.get(0).baseName);
+    }
 
     for (CodegenOperation op : codegenOperations) {
       // need to ensure the path if it has params as <> that it uses {} instead
@@ -140,10 +173,31 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
       if ("Object".equals(op.returnBaseType)) {
         op.returnBaseType = "Response";
       }
+
+      if (op.getHasQueryParams()) {
+        final List<CodegenParameter> optionalQueryParams = op.allParams.stream().filter(p -> p.isQueryParam && !p.required).collect(Collectors.toList());
+        if (optionalQueryParams.size() > 0) {
+          op.vendorExtensions.put("x-has-delegator-holder", Boolean.TRUE);
+          op.vendorExtensions.put("x-delegator-holder-params", optionalQueryParams);
+          op.vendorExtensions.put("x-class-delegator-holder", camelize(op.operationId + "-holder", false));
+        }
+      }
+
+      // regardless we don't want un-required query params in this one
+      final String params = op.allParams.stream().filter(p -> !p.isQueryParam || p.required).map(p -> p.paramName).collect(Collectors.joining(","));
+      if (params.length() > 0) {
+        op.vendorExtensions.put("x-has-java-params", Boolean.TRUE);
+        op.vendorExtensions.put("x-java-params", params);
+        op.vendorExtensions.put("x-java-params-plus-types",
+          op.allParams.stream().filter(p -> !p.isQueryParam || p.required).map(p -> p.dataType + " " + p.paramName).collect(Collectors.joining(","))
+          );
+      }
     }
 
     return super.postProcessOperationsWithModels(objs, allModels);
   }
+
+
 
   Map<String, CodegenModel> modelNames = new HashMap<>();
 
@@ -155,6 +209,31 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
       modelNames.put(m.classname, m);
     });
     return super.postProcessModels(objs);
+  }
+
+  @Override
+  public void postProcessFile(File file, String fileType) {
+    if ("java".equals(FilenameUtils.getExtension(file.toString()))) {
+      try {
+        final FileReader ifile = new FileReader(file);
+        String inputFile = IOUtils.toString(ifile);
+        ifile.close();
+        String result = new Formatter(
+          JavaFormatterOptions.builder()
+            .style(JavaFormatterOptions.Style.GOOGLE)
+            .build()).formatSourceAndFixImports(inputFile);
+        if (result.trim().length() == 0) {
+          log.error("Unable to format `{}`", file.getAbsolutePath());
+        } else {
+          final FileWriter ofile = new FileWriter(file);
+          IOUtils.write(result, ofile);
+          ofile.flush();
+          ofile.close();
+        }
+      } catch (FormatterException | IOException e) {
+        log.error("Failed to format file `{}`", file.getAbsolutePath(), e);
+      }
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -201,7 +280,7 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
     }
 
     // we create a list we throw away???
-    List<CodegenOperation> opList = operations.computeIfAbsent(basePath, k -> new ArrayList<CodegenOperation>());
+    List<CodegenOperation> opList = operations.computeIfAbsent(tag != null ? tag : basePath, k -> new ArrayList<CodegenOperation>());
     opList.add(co);
     co.baseName = basePath;
   }
@@ -232,13 +311,19 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
       result = result.substring(0, ix) + "/factories" + result.substring(ix, result.length() - 5) + "ServiceFactory.java";
     } else if (templateName.endsWith("ClientService.mustache")) {
       ix = result.lastIndexOf(46);
-      result = result.substring(0, ix) + "ClientService.java";
+      result = result.substring(0, ix) + "Client.java";
     } else if (templateName.endsWith("SecurityService.mustache")) {
       ix = result.lastIndexOf(46);
-      result = result.substring(0, ix) + "SecuredService.java";
+      result = result.substring(0, ix) + ".java";
+    } else if (templateName.endsWith("DelegateServerService.mustache")) {
+      ix = result.lastIndexOf(46);
+      result = result.substring(0, ix) + "Delegator.java";
+    } else if (templateName.endsWith("DelegateService.mustache")) {
+      ix = result.lastIndexOf(46);
+      result = result.substring(0, ix) + "Delegate.java";
     } else if (templateName.endsWith("Service.mustache")) {
       ix = result.lastIndexOf(46);
-      result = result.substring(0, ix) + "Service.java";
+      result = result.substring(0, ix) + ".java";
     }
 
     return result;
