@@ -106,6 +106,9 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
     if("null".equals(property.example)) {
       property.example = null;
     }
+
+    model.imports.remove("ApiModelProperty");
+    model.imports.remove("ApiModel");
   }
 
   /**
@@ -213,6 +216,8 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
 
   Map<String, CodegenModel> modelNames = new HashMap<>();
 
+
+  @SuppressWarnings("unchecked")
   @Override
   public Map<String, Object> postProcessModels(Map<String, Object> objs) {
     List<Map<String, Object>> models = (List<Map<String, Object>>) objs.get("models");
