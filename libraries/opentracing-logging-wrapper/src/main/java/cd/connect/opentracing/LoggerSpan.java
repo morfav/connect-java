@@ -3,6 +3,7 @@ package cd.connect.opentracing;
 import cd.connect.context.ConnectContext;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
+import io.opentracing.tag.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -22,7 +23,7 @@ import static cd.connect.opentracing.OpenTracingLogger.WELL_KNOWN_SCENARIO_ID;
 /**
  * This is designed to extract the baggage items of the active trace
  * into the logging context, and on activation, the tags go into the logs as well
- * 
+ *
  *
  * @author Richard Vowles - https://plus.google.com/+RichardVowles
  */
@@ -53,7 +54,7 @@ public class LoggerSpan implements Span, SpanContext {
   // if we are doing an extract from a header, the returned spancontext may
   // not be a span, so we may need to set it later once the span builder has
   // created it. in Jaeger for example a spancontext from an extract is just that, it is not a span.
-  public void setWrappedSpan(Span wrappedSpan) {
+  public LoggerSpan setWrappedSpan(Span wrappedSpan) {
     this.wrappedSpan = wrappedSpan;
 
     // the wrapped span can be set quite late and from a span context, so
@@ -62,10 +63,13 @@ public class LoggerSpan implements Span, SpanContext {
       wrappedSpan.context().baggageItems().forEach(e -> this.baggage.put(e.getKey(), e.getValue()));
       updateLoggedBaggage();
     }
+
+    return this;
   }
+
   public void setWrappedSpanContext(SpanContext ctx) {
     this.wrappedSpanContext = ctx;
-    
+
     if (baggage.size() == 0 && wrappedSpanContext != null) {
       wrappedSpanContext.baggageItems().forEach(e -> this.baggage.put(e.getKey(), e.getValue()));
       updateLoggedBaggage();
@@ -144,6 +148,15 @@ public class LoggerSpan implements Span, SpanContext {
     }
     updateLoggedTags();
     return null;
+  }
+
+  @Override
+  public <T> Span setTag(Tag<T> tag, T t) {
+    if (wrappedSpan != null) {
+      return wrappedSpan.setTag(tag, t);
+    }
+
+    return this;
   }
 
   @Override
@@ -268,7 +281,7 @@ public class LoggerSpan implements Span, SpanContext {
     MDC.put(OPENTRACING_APPNAME, appName);
 
     String originApp = getBaggageItem(WELL_KNOWN_ORIGIN_APP);
-    
+
     if (originApp != null) {
       MDC.put(OPENTRACING_ORIGIN_APPNAME, originApp);
     }
@@ -347,6 +360,16 @@ public class LoggerSpan implements Span, SpanContext {
 //      log.debug("logger new interest {}: {}", garbageCounter.get(), id, re);
 //    }
 
+  }
+
+  @Override
+  public String toTraceId() {
+    return null;
+  }
+
+  @Override
+  public String toSpanId() {
+    return null;
   }
 
   @Override

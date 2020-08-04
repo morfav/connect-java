@@ -8,6 +8,7 @@ import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import io.opentracing.propagation.TextMap;
+import io.opentracing.tag.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +66,7 @@ public class LoggingSpanTracer implements Tracer {
     this.wrappedTracer = wrappedTracer;
 
     appName = System.getProperty("app.name");
-    
+
     if (appName == null) {
       try {
         appName = InetAddress.getLocalHost().getHostName();
@@ -102,13 +103,16 @@ public class LoggingSpanTracer implements Tracer {
   }
 
   private final ScopeManager scopeManager = new ScopeManager() {
+    private LoggerSpan currentSpan = null;
+
     @Override
-    public Scope activate(Span span, boolean finishSpanOnClose) {
-      LoggerSpan loggerSpan = (LoggerSpan) span;
+    public Scope activate(Span span) {
+      LoggerSpan loggerSpan = span instanceof LoggerSpan ? (LoggerSpan) span :
+        new LoggerSpan(activeScope()).setWrappedSpan(span);
 
-      LoggerScope newScope = new LoggerScope(loggerSpan, finishSpanOnClose, LoggingSpanTracer.this);
+      LoggerScope newScope = new LoggerScope(loggerSpan, false, LoggingSpanTracer.this);
 
-      Scope wrappedScope = wrappedTracer.scopeManager().activate(loggerSpan.getWrappedSpan(), finishSpanOnClose);
+      Scope wrappedScope = wrappedTracer.scopeManager().activate(loggerSpan.getWrappedSpan());
       newScope.setWrappedScope(wrappedScope);
 
       loggerSpan.setActive(appName);
@@ -125,12 +129,14 @@ public class LoggingSpanTracer implements Tracer {
 
       pushScope(newScope);
 
+      this.currentSpan = loggerSpan;
+
       return newScope;
     }
 
     @Override
-    public Scope active() {
-      return activeScope();
+    public Span activeSpan() {
+      return this.currentSpan;
     }
   };
 
@@ -143,6 +149,11 @@ public class LoggingSpanTracer implements Tracer {
   public Span activeSpan() {
     LoggerScope scope = cleanScopes();
     return (scope == null) ? null : scope.span();
+  }
+
+  @Override
+  public Scope activateSpan(Span span) {
+    return scopeManager.activate(span);
   }
 
   @Override
@@ -194,6 +205,11 @@ public class LoggingSpanTracer implements Tracer {
     return span;
   }
 
+  @Override
+  public void close() {
+    wrappedTracer.close();
+  }
+
   class LoggingSpanBuilder implements Tracer.SpanBuilder {
     private SpanBuilder spanBuilder;
     private LoggerSpan loggerSpan;
@@ -207,7 +223,7 @@ public class LoggingSpanTracer implements Tracer {
     public SpanBuilder asChildOf(SpanContext parent) {
       if (parent instanceof LoggerSpan) {
         LoggerSpan loggerSpan = (LoggerSpan)parent;
-        
+
         if (loggerSpan.getWrappedSpanContext() != null) {
           this.spanBuilder = this.spanBuilder.asChildOf(loggerSpan.getWrappedSpanContext());
         } else {
@@ -295,37 +311,44 @@ public class LoggingSpanTracer implements Tracer {
     }
 
     @Override
+    public <T> SpanBuilder withTag(Tag<T> tag, T t) {
+      loggerSpan.setTag(tag, t);
+      spanBuilder = spanBuilder.withTag(tag, t);
+      return this;
+    }
+
+    @Override
     public SpanBuilder withStartTimestamp(long microseconds) {
       spanBuilder = spanBuilder.withStartTimestamp(microseconds);
       return this;
     }
 
-    @Override
-    public Scope startActive(boolean finishSpanOnClose) {
-      Scope scope = spanBuilder.startActive(finishSpanOnClose);
-
-      // we can't use "activate" in our own scopeManager as it will activate the wrapped span again
-      loggerSpan.setWrappedSpan(scope.span());
-
-      LoggerScope newScope = new LoggerScope(loggerSpan, finishSpanOnClose, LoggingSpanTracer.this);
-
-      newScope.setWrappedScope(scope);
-
-      loggerSpan.setActive(appName);
-
-      if (loggerSpan.getBaggageItem(OpenTracingLogger.WELL_KNOWN_REQUEST_ID) == null) {
-        loggerSpan.setBaggageItem(OpenTracingLogger.WELL_KNOWN_REQUEST_ID, OpenTracingLogger.randomRequestIdProvider.get());
-      }
-
-      pushScope(newScope);
-
-      return newScope;
-    }
-
-    @Override
-    public Span startManual() {
-      return startActive(false).span();
-    }
+//    @Override
+//    public Scope startActive(boolean finishSpanOnClose) {
+//      Scope scope = spanBuilder.startActive(finishSpanOnClose);
+//
+//      // we can't use "activate" in our own scopeManager as it will activate the wrapped span again
+//      loggerSpan.setWrappedSpan(scope.span());
+//
+//      LoggerScope newScope = new LoggerScope(loggerSpan, finishSpanOnClose, LoggingSpanTracer.this);
+//
+//      newScope.setWrappedScope(scope);
+//
+//      loggerSpan.setActive(appName);
+//
+//      if (loggerSpan.getBaggageItem(OpenTracingLogger.WELL_KNOWN_REQUEST_ID) == null) {
+//        loggerSpan.setBaggageItem(OpenTracingLogger.WELL_KNOWN_REQUEST_ID, OpenTracingLogger.randomRequestIdProvider.get());
+//      }
+//
+//      pushScope(newScope);
+//
+//      return newScope;
+//    }
+//
+//    @Override
+//    public Span startManual() {
+//      return startActive(false).span();
+//    }
 
     @Override
     public Span start() {
@@ -333,6 +356,9 @@ public class LoggingSpanTracer implements Tracer {
       if (loggerSpan.getBaggageItem(OpenTracingLogger.WELL_KNOWN_REQUEST_ID) == null) {
         loggerSpan.setBaggageItem(OpenTracingLogger.WELL_KNOWN_REQUEST_ID, OpenTracingLogger.randomRequestIdProvider.get());
       }
+
+      scopeManager.activate(loggerSpan);
+
       return loggerSpan;
     }
   }

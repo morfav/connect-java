@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *   // when one of these gets created, another client is interested in this span
  *   // so we increase its garbage count. This is how Executor pools propagate spans
  *   // by creating new scopes foe them after getting the active span.
- *   
+ *
  * @author Richard Vowles - https://plus.google.com/+RichardVowles
  */
 public class LoggerScope implements Scope {
@@ -37,7 +37,7 @@ public class LoggerScope implements Scope {
   public boolean isClosed() {
     return closed.get();
   }
-  
+
   public void setWrappedScope(Scope wrappedScope) {
     this.wrappedScope = wrappedScope;
   }
@@ -62,7 +62,6 @@ public class LoggerScope implements Scope {
     }
   }
 
-  @Override
   public Span span() {
     return span;
   }
