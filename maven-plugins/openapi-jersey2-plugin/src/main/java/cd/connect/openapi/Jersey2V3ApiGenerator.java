@@ -220,12 +220,24 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
   @SuppressWarnings("unchecked")
   @Override
   public Map<String, Object> postProcessModels(Map<String, Object> objs) {
+    objs = super.postProcessModels(objs);
+
     List<Map<String, Object>> models = (List<Map<String, Object>>) objs.get("models");
+    List<HashMap<String, String>> imports = (List<HashMap<String, String>> )objs.get("imports");
+    imports.forEach((map) -> {
+      if (map.containsKey("import")) {
+        if (map.get("import").startsWith("io.swagger")) {
+          map.remove("import");
+        }
+      }
+    });
+    imports.removeIf(Map::isEmpty);
     models.stream().forEach(model -> {
       CodegenModel m = (CodegenModel) model.get("model");
       modelNames.put(m.classname, m);
     });
-    return super.postProcessModels(objs);
+
+    return objs;
   }
 
   @Override
