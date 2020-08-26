@@ -217,6 +217,7 @@ public class ConstraintExceptionHandler implements ExceptionMapper<ConstraintVio
 }
 ----
 
+=== Maven
 A full plugin declaration would look similar to this:
 
 ----
@@ -258,6 +259,39 @@ A full plugin declaration would look similar to this:
   </execution>
 </executions>
 </plugin>
+----
+
+=== Gradle
+
+In Gradle, you have to make this extra library available to the buildscript, so at the top of your file before
+your plugin declaration you need a section similar to:
+
+----
+buildscript {
+	repositories {
+		mavenLocal()
+		mavenCentral()
+	}
+	dependencies {
+		classpath "cd.connect.openapi:connect-openapi-jersey2:5.4"
+	}
+}
+----
+
+from there in your openApiGenerator definitions, you specify the server format in additional properties:
+
+----
+openApiGenerate {
+    generatorName = "jersey2-api"
+    inputSpec = openApiSpec
+    outputDir = openApiOutputDir
+    apiPackage = "com.your-company.api"
+    modelPackage = "com.your-company.api.model"
+	  additionalProperties = [
+	    'server-delegate': 'server-delegate'
+	  ]
+    configOptions = [:]
+}
 ----
 
 == changes from v1.x
