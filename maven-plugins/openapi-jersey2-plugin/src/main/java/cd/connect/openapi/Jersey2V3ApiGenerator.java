@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.openapitools.codegen.utils.StringUtils.camelize;
@@ -40,6 +41,8 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
   private static final String SERVICE_NAME = "serviceName";
   private static final String SERVICE_PORT = "servicePort";
   private static final String SERVICE_DEFAULT_URL = "serviceDefaultUrl";
+  // if this is set, then we always use this as the base path if it exists in all of the paths in the set of operations
+  private static final String SERVICE_BASE = "serviceUrlBase";
 
   public Jersey2V3ApiGenerator() {
     super();
@@ -164,17 +167,31 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
     }
   }
 
-
-
   @Override
   public Map<String, Object> postProcessOperationsWithModels(Map<String, Object> objs, List<Object> allModels) {
-
+    super.postProcessOperationsWithModels(objs, allModels);
 
     List<CodegenOperation> codegenOperations = getCodegenOperations(objs);
+
+    // we need to be able to prevent voracious common-pathing if APIs are scattered because Jersey
+    // can't find URLs that have the same common path offset with the @Path annotation at the top of
+    // the file
+    String baseUrlOverride = Optional.ofNullable(additionalProperties.get(SERVICE_BASE)).map(Object::toString).orElse(null);
+
+    if (baseUrlOverride != null && objs.containsKey("commonPath") && objs.get("commonPath").toString().startsWith(baseUrlOverride)) {
+      String commonPath = objs.get("commonPath").toString().substring(baseUrlOverride.length());
+
+      codegenOperations.forEach(co -> {
+        co.path = commonPath + co.path;
+      });
+
+      objs.put("commonPath", baseUrlOverride);
+    }
 
     if (codegenOperations.size() > 0) {
       objs.put("apiName", codegenOperations.get(0).baseName);
     }
+
     if(additionalProperties.containsKey(SERVICE_DEFAULT_URL)){
       objs.put(SERVICE_DEFAULT_URL, additionalProperties.get(SERVICE_DEFAULT_URL));
     }
@@ -187,6 +204,16 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
       // are required.
       if ("Object".equals(op.returnBaseType)) {
         op.returnBaseType = "Response";
+      }
+
+      if (op.produces != null) {
+        int lastProducesHasNext = op.produces.size();
+        for (Map<String, String> produce : op.produces) {
+          lastProducesHasNext --;
+          if (lastProducesHasNext > 0) {
+            produce.put("hasMore", "true");
+          }
+        }
       }
 
       if (op.getHasQueryParams()) {
@@ -209,7 +236,7 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
       }
     }
 
-    return super.postProcessOperationsWithModels(objs, allModels);
+    return objs;
   }
 
 
@@ -232,7 +259,7 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
       }
     });
     imports.removeIf(Map::isEmpty);
-    models.stream().forEach(model -> {
+    models.forEach(model -> {
       CodegenModel m = (CodegenModel) model.get("model");
       modelNames.put(m.classname, m);
     });
@@ -284,34 +311,7 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
 
   @Override
   public void addOperationToGroup(String tag, String resourcePath, Operation operation, CodegenOperation co, Map<String, List<CodegenOperation>> operations) {
-    String basePath = resourcePath;
-
-    // ensure all paths are relative -> /customer/get ==> customer/get
-    if (basePath.startsWith("/")) {
-      basePath = basePath.substring(1);
-    }
-
-    // extracts the base of the reference -> customer/get => basePath = customer
-    int pos = basePath.indexOf("/");
-    if (pos > 0) {
-      basePath = basePath.substring(0, pos);
-    }
-
-    // if the url is /customer originally, then basePath will be empty put it in the "default" group.
-    //
-    if (basePath.equals("")) {
-      basePath = additionalProperties.get(SERVICE_NAME) == null ? "default" : additionalProperties.get(SERVICE_NAME).toString();
-    } else {
-      if (co.path.startsWith("/" + basePath)) {
-        co.path = co.path.substring(("/" + basePath).length());
-      }
-      co.subresourceOperation = !co.path.isEmpty();
-    }
-
-    // we create a list we throw away???
-    List<CodegenOperation> opList = operations.computeIfAbsent(tag != null ? tag : basePath, k -> new ArrayList<CodegenOperation>());
-    opList.add(co);
-    co.baseName = basePath;
+    operations.computeIfAbsent(tag, k -> new ArrayList<>()).add(co);
   }
 
   private void addJersey2Client(String serviceName, String serviceAddress) {
@@ -329,7 +329,7 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
 
   @Override
   public String apiFilename(String templateName, String tag) {
-    String suffix = (String)this.apiTemplateFiles().get(templateName);
+    String suffix = this.apiTemplateFiles().get(templateName);
     String result = this.apiFileFolder() + '/' + this.toApiFilename(tag) + suffix;
     int ix;
     if (templateName.endsWith("Impl.mustache")) {
