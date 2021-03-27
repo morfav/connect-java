@@ -9,13 +9,18 @@ The current authors of this repository are:
 - _Irina Southwell (nee Капрельянц Ирина)_, Principal Engineer (https://www.linkedin.com/in/irina-southwell-9727a422/)
 - _Richard Vowles_, Software Developer (https://www.linkedin.com/in/richard-vowles-72035193/)
 
-== changes in 6.1
 
-In this version we 
 
-* swap to version 5.x of the OpenAPI generator.
-* allow you to skip generating the "copy" method by using an x-no-copy
-* fix the issue with produces and consumes using Lists instead of proper lists with "hasMore"
+== changes in 6.x
+
+* 6.2: introduces the ReturnStatus when the function returns a 2xx response that isn't 200. Jersey when
+returning a class will always return 200, even if your API says 201 or 204. You need to upgrade to the 1.4
+release of `openapi-jersey2-support` or later where the `ReturnStatusContainerResponseFilter` exists and
+register it with your jersey context to ensure this status is set on return. You need to add this to your
+own implementations unless you are using server-delegate in which case it is added automatically.
+* 6.1: swap to version 5.x of the OpenAPI generator.
+* 6.1: allow you to skip generating the "copy" method by using an x-no-copy
+* 6.1: fix the issue with produces and consumes using Lists instead of proper lists with "hasMore"
 
 == changes in 5.1
 

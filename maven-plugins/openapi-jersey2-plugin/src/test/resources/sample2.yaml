@@ -42,7 +42,7 @@ paths:
               items:
                 $ref: "#/components/schemas/TestDTO"
       responses:
-        "200":
+        "201":
           description: "upcoming events"
           content:
             application/json:

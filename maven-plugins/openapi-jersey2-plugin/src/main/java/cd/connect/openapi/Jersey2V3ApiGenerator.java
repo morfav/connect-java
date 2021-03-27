@@ -234,6 +234,12 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
           op.allParams.stream().filter(p -> !p.isQueryParam || p.required).map(p -> p.dataType + " " + p.paramName).collect(Collectors.joining(","))
           );
       }
+
+      op.responses.stream().filter(r -> r.is2xx && !"200".equalsIgnoreCase(r.code)
+            && op.returnType != null && op.returnType.equals(r.dataType) ).findFirst()
+        .ifPresent(resp -> {
+          op.vendorExtensions.put("statusCode", resp.code);
+        });
     }
 
     return objs;

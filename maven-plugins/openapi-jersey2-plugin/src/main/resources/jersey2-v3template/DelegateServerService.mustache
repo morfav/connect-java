@@ -1,5 +1,6 @@
 package {{package}};
 
+import cd.connect.openapi.support.ReturnStatus;
 import cd.connect.openapi.support.ApiClient;
 import cd.connect.openapi.support.ApiResponse;
 import cd.connect.openapi.support.Pair;
@@ -47,6 +48,7 @@ import javax.inject.Inject;
     {{#isDeprecated}}
       @Deprecated
     {{/isDeprecated}}
+    {{#vendorExtensions.statusCode}}@ReturnStatus(code={{vendorExtensions.statusCode}}){{/vendorExtensions.statusCode}}
     {{#vendorExtensions.x-java-annotations}}{{{.}}}{{/vendorExtensions.x-java-annotations}}
     public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}Response {{/returnType}}{{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}{{#authMethods}}{{#hasParams}}, {{/hasParams}}SecurityContext securityContext{{/authMethods}}) {
   {{#vendorExtensions.x-has-delegator-holder}}
