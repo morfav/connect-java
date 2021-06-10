@@ -7,7 +7,7 @@
 	<version>6.5-SNAPSHOT</version>
 
 	<description>
-		jersey2 generator from openapi 3.x spec files. Changing to openapitools dependencies.
+		jersey3 generator from openapi 3.x spec files. Changing to openapitools dependencies.
 	</description>
 
 	<url>https://clearpointnz.github.io/connect/</url>

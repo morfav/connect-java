@@ -288,6 +288,7 @@ components:
           $ref: "#/components/schemas/EventStatus"
         id:
           type: string
+          format: uuid
         title:
           type: string
         img:

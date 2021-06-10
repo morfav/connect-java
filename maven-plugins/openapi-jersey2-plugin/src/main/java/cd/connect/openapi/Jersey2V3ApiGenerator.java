@@ -110,6 +110,10 @@ public class Jersey2V3ApiGenerator extends AbstractJavaJAXRSServerCodegen implem
       property.example = null;
     }
 
+    if ("uuid".equals(property.getDataFormat())) {
+      property.isFreeFormObject = false;
+    }
+
     model.imports.remove("ApiModelProperty");
     model.imports.remove("ApiModel");
   }

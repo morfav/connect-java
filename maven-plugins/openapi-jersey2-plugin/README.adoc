@@ -13,6 +13,7 @@ The current authors of this repository are:
 
 == changes in 6.x
 
+* 6.5: support UUIDs properly
 * 6.2: introduces the ReturnStatus when the function returns a 2xx response that isn't 200. Jersey when
 returning a class will always return 200, even if your API says 201 or 204. You need to upgrade to the 1.4
 release of `openapi-jersey2-support` or later where the `ReturnStatusContainerResponseFilter` exists and
