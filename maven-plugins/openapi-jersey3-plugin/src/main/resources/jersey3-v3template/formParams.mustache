@@ -1,0 +1,3 @@
+{{#isFormParam}}{{^notFile}}{{^isFile}}@FormParam("{{baseName}}")  {{{dataType}}} {{paramName}}{{/isFile}}{{/notFile}} {{#notFile}}{{#vendorExtensions.x-multipart}}@FormDataParam("{{baseName}}")  {{{dataType}}} {{paramName}}{{/vendorExtensions.x-multipart}}{{^vendorExtensions.x-multipart}}@FormParam("{{baseName}}")  {{{dataType}}} {{paramName}}{{/vendorExtensions.x-multipart}}{{/notFile}}{{#isFile}}
+            @FormDataParam("file") InputStream inputStream,
+            @FormDataParam("file") FormDataContentDisposition fileDetail{{/isFile}}{{/isFormParam}}

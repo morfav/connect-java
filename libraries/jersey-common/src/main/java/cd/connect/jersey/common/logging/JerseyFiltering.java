@@ -2,7 +2,7 @@ package cd.connect.jersey.common.logging;
 
 import org.glassfish.jersey.logging.LoggingFeature;
 
-import javax.ws.rs.core.Configurable;
+import jakarta.ws.rs.core.Configurable;
 
 /**
  * This class must be usable as soon as it is injected. Typically the payload exclusions

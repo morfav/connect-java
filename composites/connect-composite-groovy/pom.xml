@@ -9,7 +9,7 @@
 	</parent>
 
   <artifactId>connect-composite-groovy</artifactId>
-  <version>1.2-SNAPSHOT</version>
+  <version>2.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>connect-composite-groovy</name>
 
@@ -42,15 +42,14 @@
 	</scm>
 
   <properties>
-    <groovy.version>2.4.15</groovy.version>
+    <groovy.version>3.0.8</groovy.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
-      <artifactId>groovy-all</artifactId>
+      <artifactId>groovy</artifactId>
       <version>${groovy.version}</version>
-      <classifier>indy</classifier>
     </dependency>
   </dependencies>
 
@@ -59,7 +58,7 @@
 			<plugin>
 				<groupId>io.repaint.maven</groupId>
 				<artifactId>tiles-maven-plugin</artifactId>
-				<version>2.10</version>
+				<version>2.23</version>
 				<extensions>true</extensions>
 				<configuration>
 					<filtering>false</filtering>

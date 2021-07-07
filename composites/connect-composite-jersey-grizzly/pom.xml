@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>connect-composite-jersey-grizzly</artifactId>
-	<version>1.2-SNAPSHOT</version>
+	<version>2.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>connect-composite-jersey-grizzly</name>
 
@@ -42,10 +42,11 @@
 		<tag>HEAD</tag>
 	</scm>
 
-
 	<properties>
-		<grizzly.version>2.4.4</grizzly.version>
-		<grizzly.npn.version>1.9</grizzly.npn.version>
+		<grizzly.version>3.0.0</grizzly.version>
+		<grizzly.npn.version>2.0.0</grizzly.npn.version>
+		<jackson.version>2.12.4</jackson.version>
+		<jersey.version>3.0.2</jersey.version>
 	</properties>
 
 	<dependencies>
@@ -53,7 +54,7 @@
 		<dependency>
 			<groupId>cd.connect.composites.java</groupId>
 			<artifactId>connect-composite-jersey</artifactId>
-			<version>[1.1, 2)</version>
+			<version>[2, 3)</version>
 		</dependency>
 
 		<dependency>
@@ -98,7 +99,7 @@
 			<plugin>
 				<groupId>io.repaint.maven</groupId>
 				<artifactId>tiles-maven-plugin</artifactId>
-				<version>2.10</version>
+				<version>2.23</version>
 				<extensions>true</extensions>
 				<configuration>
 					<filtering>false</filtering>

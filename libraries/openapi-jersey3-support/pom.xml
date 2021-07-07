@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>cd.connect.openapi.gensupport</groupId>
+  <artifactId>openapi-jersey3-support</artifactId>
+  <version>2.1-SNAPSHOT</version>
+  <name>openapi-generator-support</name>
+
+  <description>
+    support classes for openapi v3 generator
+  </description>
+
+  <url>https://clearpointnz.github.io/connect/</url>
+  <developers>
+    <developer>
+      <email>richard@bluetrainsoftware.com</email>
+      <id>rvowles</id>
+      <name>Richard Vowles</name>
+      <organization>on behalf of ClearPoint NZ Ltd</organization>
+    </developer>
+  </developers>
+
+  <licenses>
+    <license>
+      <name>Apache License 2.0</name>
+      <url>https://opensource.org/licenses/Apache-2.0</url>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:git@github.com:clearpointnz/connect-openapi-jersey2.git</connection>
+    <developerConnection>scm:git:git@github.com:clearpointnz/connect-openapi-jersey2.git</developerConnection>
+    <url>git@github.com:clearpointnz/connect-java-servlet-spring-jersey.git</url>
+    <tag>HEAD</tag>
+  </scm>
+
+
+  <dependencies>
+    <dependency>
+      <groupId>cd.connect.composites.java</groupId>
+      <artifactId>connect-composite-jackson</artifactId>
+      <version>[2,3)</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>cd.connect.composites.java</groupId>
+      <artifactId>connect-composite-jersey</artifactId>
+      <version>[2, 3)</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>cd.connect.composites.java</groupId>
+      <artifactId>connect-composite-test</artifactId>
+      <version>[2,3)</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>io.repaint.maven</groupId>
+        <artifactId>tiles-maven-plugin</artifactId>
+        <version>2.23</version>
+        <extensions>true</extensions>
+        <configuration>
+          <filtering>false</filtering>
+          <tiles>
+            <tile>cd.connect.tiles:tile-java:[1.1, 2)</tile>
+          </tiles>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

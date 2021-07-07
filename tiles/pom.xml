@@ -11,7 +11,6 @@
 
 	<modules>
 		<module>tile-runnable</module>
-		<module>tile-release</module>
 		<module>tile-java-core</module>
 		<module>tile-java</module>
 		<module>tile-groovy</module>
