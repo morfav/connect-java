@@ -8,7 +8,7 @@ import org.glassfish.jersey.logging.FilteringServerLoggingFilter;
 import org.glassfish.jersey.logging.JerseyClientLogger;
 import org.glassfish.jersey.logging.JerseyServerLogger;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import jakarta.ws.rs.core.Feature;
 import jakarta.ws.rs.core.FeatureContext;
 

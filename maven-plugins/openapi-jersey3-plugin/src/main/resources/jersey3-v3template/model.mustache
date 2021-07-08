@@ -16,10 +16,10 @@ import java.io.Serializable;
 {{/serializableModel}}
 import com.fasterxml.jackson.annotation.*;
 {{#withXml}}
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 {{/withXml}}
-import javax.validation.constraints.*;
-import javax.validation.Valid;
+import jakarta.validation.constraints.*;
+import jakarta.validation.Valid;
 
 {{#models}}
 {{#model}}

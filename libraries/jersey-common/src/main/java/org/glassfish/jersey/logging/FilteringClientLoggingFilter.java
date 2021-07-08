@@ -4,9 +4,9 @@ import cd.connect.context.ConnectContext;
 import cd.connect.jersey.common.logging.JerseyFiltering;
 import org.glassfish.jersey.message.MessageUtils;
 
-import javax.annotation.Priority;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.annotation.Priority;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import jakarta.ws.rs.ConstrainedTo;
 import jakarta.ws.rs.RuntimeType;
 import jakarta.ws.rs.client.ClientRequestContext;
