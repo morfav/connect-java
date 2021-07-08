@@ -35,9 +35,9 @@
 	</licenses>
 
 	<scm>
-		<connection>scm:git:git@github.com:clearpointnz/connect-java-composite.git</connection>
-		<developerConnection>scm:git:git@github.com:clearpointnz/connect-java-composite.git</developerConnection>
-		<url>git@github.com:clearpointnz/connect-java-composite.git</url>
+		<connection>scm:git:git@github.com:clearpointnz/connect-java.git</connection>
+		<developerConnection>scm:git:git@github.com:clearpointnz/connect-java.git</developerConnection>
+		<url>git@github.com:clearpointnz/connect-java.git</url>
 		<tag>HEAD</tag>
 	</scm>
 
