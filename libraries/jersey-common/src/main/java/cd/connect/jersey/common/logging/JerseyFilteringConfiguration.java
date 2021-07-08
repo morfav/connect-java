@@ -20,7 +20,7 @@ import java.util.stream.Stream;
  * These are only GLOBAL settings for all jersey contexts. If you load multiple of them and you want individual
  * configuration you will need to do this another way.
  *
- * @author Richard Vowles - https://plus.google.com/+RichardVowles
+ *
  */
 
 public class JerseyFilteringConfiguration implements JerseyFiltering {

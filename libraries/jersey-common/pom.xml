@@ -4,7 +4,7 @@
 
   <groupId>cd.connect.jersey</groupId>
   <artifactId>connect-jersey-common</artifactId>
-  <version>1.12-SNAPSHOT</version>
+  <version>2.2-SNAPSHOT</version>
   <name>connect-jersey-common</name>
 
   <description>
@@ -37,26 +37,10 @@
 
 
   <dependencies>
-    <!-- general opentracing -->
-    <dependency>
-      <groupId>cd.connect.composites.java</groupId>
-      <artifactId>connect-composite-tracing</artifactId>
-      <version>[1.1, 2)</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <!-- opentracing for jaxrs -->
-    <dependency>
-      <groupId>io.opentracing.contrib</groupId>
-      <artifactId>opentracing-jaxrs2</artifactId>
-      <version>1.0.0</version>
-      <scope>provided</scope>
-    </dependency>
-
     <dependency>
       <groupId>cd.connect.composites.java</groupId>
       <artifactId>connect-composite-jersey</artifactId>
-      <version>[1.1,2)</version>
+      <version>[2,3)</version>
       <scope>provided</scope>
     </dependency>
 
@@ -70,7 +54,7 @@
     <dependency>
       <groupId>cd.connect.common</groupId>
       <artifactId>connect-java-logging</artifactId>
-      <version>[1.1,2)</version>
+      <version>[2,3)</version>
       <scope>provided</scope>
     </dependency>
 
@@ -84,21 +68,21 @@
     <dependency>
       <groupId>cd.connect.common</groupId>
       <artifactId>connect-prometheus-jersey</artifactId>
-      <version>[2.2, 3)</version>
+      <version>[3, 4)</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>cd.connect.composites.java</groupId>
       <artifactId>connect-composite-prometheus</artifactId>
-      <version>1.1</version>
+      <version>[2,3)</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>cd.connect.composites.java</groupId>
       <artifactId>connect-composite-test</artifactId>
-      <version>[1.1,2)</version>
+      <version>[2,3)</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -108,7 +92,7 @@
       <plugin>
         <groupId>io.repaint.maven</groupId>
         <artifactId>tiles-maven-plugin</artifactId>
-        <version>2.10</version>
+        <version>2.23</version>
         <extensions>true</extensions>
         <configuration>
           <filtering>false</filtering>

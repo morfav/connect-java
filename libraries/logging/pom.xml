@@ -4,7 +4,7 @@
 
   <groupId>cd.connect.common</groupId>
 	<artifactId>connect-java-logging</artifactId>
-	<version>1.2-SNAPSHOT</version>
+	<version>2.3-SNAPSHOT</version>
 	<name>connect-java-logging</name>
 
 	<description>
@@ -40,19 +40,19 @@
     <dependency>
       <groupId>cd.connect.composites.java</groupId>
       <artifactId>connect-composite-logging</artifactId>
-      <version>[1.1, 2)</version>
+      <version>[1, 2)</version>
     </dependency>
 
     <dependency>
       <groupId>cd.connect.common</groupId>
       <artifactId>connect-java-jackson</artifactId>
-      <version>[1.1, 2)</version>
+      <version>[2, 3)</version>
     </dependency>
 
     <dependency>
       <groupId>cd.connect.composites.java</groupId>
       <artifactId>connect-composite-test</artifactId>
-      <version>[1.1, 2)</version>
+      <version>[2, 3)</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -1,0 +1,65 @@
+package {{package}};
+
+import cd.connect.openapi.support.ReturnStatus;
+import cd.connect.openapi.support.ApiClient;
+import cd.connect.openapi.support.ApiResponse;
+import cd.connect.openapi.support.Pair;
+import jakarta.ws.rs.BadRequestException;
+
+import jakarta.ws.rs.core.GenericType;
+import java.io.InputStream;
+
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
+import jakarta.inject.Inject;
+
+{{#imports}}import {{import}};
+{{/imports}}
+
+{{^fullJavaUtil}}
+  import java.util.ArrayList;
+  import java.util.HashMap;
+  import java.util.List;
+  import java.util.Map;
+{{/fullJavaUtil}}
+
+{{>generatedAnnotation}}
+{{#operations}}
+  public class {{classname}}Delegator implements {{classname}} {
+    private final {{classname}}Delegate delegate;
+
+    @Inject
+    public {{classname}}Delegator({{classname}}Delegate delegate) {
+      this.delegate = delegate;
+    }
+
+  {{#operation}}
+
+    /**
+    * {{summary}}
+    * {{notes}}
+    {{#isDeprecated}}
+      * @deprecated
+    {{/isDeprecated}}
+    */
+    {{#isDeprecated}}
+      @Deprecated
+    {{/isDeprecated}}
+    {{#vendorExtensions.statusCode}}@ReturnStatus(code={{vendorExtensions.statusCode}}){{/vendorExtensions.statusCode}}
+    {{#vendorExtensions.x-java-annotations}}{{{.}}}{{/vendorExtensions.x-java-annotations}}
+    public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}Response {{/returnType}}{{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}{{#authMethods}}{{#hasParams}}, {{/hasParams}}SecurityContext securityContext{{/authMethods}}) {
+  {{#vendorExtensions.x-has-delegator-holder}}
+      final {{classname}}Delegate.{{{vendorExtensions.x-class-delegator-holder}}} holder = new {{classname}}Delegate.{{{vendorExtensions.x-class-delegator-holder}}}();
+    {{#vendorExtensions.x-delegator-holder-params}}
+      holder.{{paramName}} = {{paramName}};
+    {{/vendorExtensions.x-delegator-holder-params}}
+  {{/vendorExtensions.x-has-delegator-holder}}
+    {{^vendorExtensions.x-java-is-response-void}}return {{/vendorExtensions.x-java-is-response-void}}
+  delegate.{{operationId}}({{{vendorExtensions.x-java-params}}} {{#vendorExtensions.x-has-delegator-holder}}{{#vendorExtensions.x-has-java-params}}, {{/vendorExtensions.x-has-java-params}}holder{{/vendorExtensions.x-has-delegator-holder}}{{#authMethods}}{{#hasParams}}, {{/hasParams}}securityContext{{/authMethods}});
+    }
+  {{/operation}}
+  }
+{{/operations}}

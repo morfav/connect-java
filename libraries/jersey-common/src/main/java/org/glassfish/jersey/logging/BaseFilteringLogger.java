@@ -3,20 +3,18 @@ package org.glassfish.jersey.logging;
 import cd.connect.context.ConnectContext;
 import cd.connect.jersey.common.logging.JerseyFiltering;
 import cd.connect.jersey.common.logging.JerseyLoggerPoint;
-import com.google.common.base.Charsets;
-import com.google.common.io.BaseEncoding;
-import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.message.MessageUtils;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.WriterInterceptor;
-import javax.ws.rs.ext.WriterInterceptorContext;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.ext.WriterInterceptor;
+import jakarta.ws.rs.ext.WriterInterceptorContext;
 import java.io.*;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
@@ -95,13 +93,7 @@ abstract class BaseFilteringLogger implements WriterInterceptor {
 	}};
 
 	private static final Comparator<Map.Entry<String, List<String>>> COMPARATOR =
-		new Comparator<Map.Entry<String, List<String>>>() {
-
-			@Override
-			public int compare(final Map.Entry<String, List<String>> o1, final Map.Entry<String, List<String>> o2) {
-				return o1.getKey().compareToIgnoreCase(o2.getKey());
-			}
-		};
+    (o1, o2) -> o1.getKey().compareToIgnoreCase(o2.getKey());
 
 	/**
 	 * Logs a {@link StringBuilder} parameter at required level.
@@ -120,7 +112,7 @@ abstract class BaseFilteringLogger implements WriterInterceptor {
 	}
 
 	private StringBuilder prefixId(final StringBuilder b, final long id) {
-		b.append(Long.toString(id)).append(" ");
+		b.append(id).append(" ");
 		return b;
 	}
 
@@ -138,7 +130,7 @@ abstract class BaseFilteringLogger implements WriterInterceptor {
 			.append(note)
 			.append(" on thread ").append(Thread.currentThread().getName()).append("\n");
 		prefixId(b, id).append(RESPONSE_PREFIX)
-			.append(Integer.toString(status))
+			.append(status)
 			.append("\n");
 	}
 
@@ -170,7 +162,7 @@ abstract class BaseFilteringLogger implements WriterInterceptor {
                         .append(prefix)
                         .append(header)
                         .append(": ")
-                        .append(sb.toString())
+                        .append(sb)
                         .append("\n");
 			}
 		}
@@ -181,7 +173,7 @@ abstract class BaseFilteringLogger implements WriterInterceptor {
      */
 
 	private Object mapHeaderValue(String header, Object value) {
-        if (null != value && StringUtils.equalsIgnoreCase(header, HttpHeaders.AUTHORIZATION)) {
+        if (null != value && HttpHeaders.AUTHORIZATION.equalsIgnoreCase(header)) {
             Matcher matcher = PATTERN_AUTHORIZATION_HEADER.matcher(value.toString());
 
             if (matcher.matches()) {
@@ -209,32 +201,28 @@ abstract class BaseFilteringLogger implements WriterInterceptor {
      */
 
     private String mapBasicCredentials(String value) {
+        byte[] plainTextBytes;
+
         try {
-            byte[] plainTextBytes;
-
-            try {
-                plainTextBytes = BaseEncoding.base64().decode(value);
-            }
-            catch (IllegalArgumentException iae) {
-                return "(CORRUPT-BASE64?)";
-            }
-
-            String plainText = new String(plainTextBytes, Charsets.UTF_8.name());
-            int colonIdx = plainText.indexOf(':');
-
-            if (-1 != colonIdx) {
-                String username = plainText.substring(0, colonIdx);
-                return username + ":" + OBFUSCATED;
-            }
-
-            return "(MALFORMED?)";
-        } catch (UnsupportedEncodingException uee) {
-            throw new IllegalStateException("the jvm must support utf-8", uee);
+            plainTextBytes = Base64.getDecoder().decode(value);
         }
+        catch (IllegalArgumentException iae) {
+            return "(CORRUPT-BASE64?)";
+        }
+
+        String plainText = new String(plainTextBytes, StandardCharsets.UTF_8);
+        int colonIdx = plainText.indexOf(':');
+
+        if (-1 != colonIdx) {
+            String username = plainText.substring(0, colonIdx);
+            return username + ":" + OBFUSCATED;
+        }
+
+        return "(MALFORMED?)";
     }
 
     private String generalObfuscateCredentials(String value) {
-        value = StringUtils.trimToEmpty(value);
+        value = value == null ? "" : value.trim();
 
         if (value.length() < 6) {
             return OBFUSCATED;
@@ -248,7 +236,7 @@ abstract class BaseFilteringLogger implements WriterInterceptor {
     }
 
 	Set<Map.Entry<String, List<String>>> getSortedHeaders(final Set<Map.Entry<String, List<String>>> headers) {
-		final TreeSet<Map.Entry<String, List<String>>> sortedHeaders = new TreeSet<Map.Entry<String, List<String>>>(COMPARATOR);
+		final TreeSet<Map.Entry<String, List<String>>> sortedHeaders = new TreeSet<>(COMPARATOR);
 		sortedHeaders.addAll(headers);
 		return sortedHeaders;
 	}

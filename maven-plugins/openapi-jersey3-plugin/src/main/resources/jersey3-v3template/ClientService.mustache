@@ -1,0 +1,118 @@
+package {{package}};
+
+import cd.connect.openapi.support.ApiClient;
+import cd.connect.openapi.support.ApiResponse;
+import cd.connect.openapi.support.Pair;
+import jakarta.ws.rs.BadRequestException;
+
+import jakarta.ws.rs.core.GenericType;
+import java.io.InputStream;
+
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
+import jakarta.ws.rs.*;
+
+{{#imports}}import {{import}};
+{{/imports}}
+
+{{^fullJavaUtil}}
+  import java.util.ArrayList;
+  import java.util.HashMap;
+  import java.util.List;
+  import java.util.Map;
+{{/fullJavaUtil}}
+
+{{#useBeanValidation}}
+  import jakarta.validation.Valid;
+  import jakarta.validation.constraints.*;
+{{/useBeanValidation}}
+
+{{>generatedAnnotation}}
+{{#hasConsumes}}@Consumes({ {{#consumes}}"{{{mediaType}}}"{{^-last}}, {{/-last}}{{/consumes}} }){{/hasConsumes}}
+{{#hasProduces}}@Produces({ {{#produces}}"{{{mediaType}}}"{{^-last}}, {{/-last}}{{/produces}} }){{/hasProduces}}
+{{#operations}}
+  @Path("{{commonPath}}")
+  public interface {{classname}}Client {
+
+  {{#operation}}
+    /**
+    * {{summary}}
+    * {{notes}}
+    {{#allParams}}
+      * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}
+    {{/allParams}}
+    {{#returnType}}
+      * @return {{returnType}}
+    {{/returnType}}
+    {{#isDeprecated}}
+      * @deprecated
+    {{/isDeprecated}}
+    {{#externalDocs}}
+      * {{description}}
+      * @see <a href="{{url}}">{{summary}} Documentation</a>
+    {{/externalDocs}}
+    */
+    @{{httpMethod}}
+      @Path("{{path}}"){{#hasConsumes}}
+      @Consumes({ {{#consumes}}"{{{mediaType}}}"{{^-last}}, {{/-last}}{{/consumes}} }){{/hasConsumes}}{{#hasProduces}}
+      @Produces({ {{#produces}}"{{{mediaType}}}"{{^-last}}, {{/-last}}{{/produces}} }){{/hasProduces}}
+    {{#isDeprecated}}
+      @Deprecated
+    {{/isDeprecated}}
+    public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}Response {{/returnType}}{{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>bodyParams}}{{>formParams}}{{^-last}}, {{/-last}}{{/allParams}});
+
+    /**
+    * {{summary}}
+    * {{notes}}
+    {{#allParams}}
+      * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}
+    {{/allParams}}
+    {{#returnType}}
+      * @return {{returnType}}
+    {{/returnType}}
+    {{#isDeprecated}}
+      * @deprecated
+    {{/isDeprecated}}
+    {{#externalDocs}}
+      * {{description}}
+      * @see <a href="{{url}}">{{summary}} Documentation</a>
+    {{/externalDocs}}
+    */
+    @{{httpMethod}}
+      @Path("{{path}}"){{#hasConsumes}}
+      @Consumes({ {{#consumes}}"{{{mediaType}}}"{{^-last}}, {{/-last}}{{/consumes}} }){{/hasConsumes}}{{#hasProduces}}
+      @Produces({ {{#produces}}"{{{mediaType}}}"{{^-last}}, {{/-last}}{{/produces}} }){{/hasProduces}}
+    {{#isDeprecated}}
+      @Deprecated
+    {{/isDeprecated}}
+    public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}Response {{/returnType}}{{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>bodyParams}}{{>formParams}}{{^-last}}, {{/-last}}{{/allParams}}{{#hasParams}}, {{/hasParams}}Map<String, String> extraHeaders);
+
+
+    /**
+    * {{summary}}
+    * {{notes}}
+    {{#allParams}}
+      * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}
+    {{/allParams}}
+    {{#returnType}}
+      * @return ApiResponse&lt;{{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Void{{/returnType}}&gt;
+    {{/returnType}}
+    {{#isDeprecated}}
+      * @deprecated
+    {{/isDeprecated}}
+    {{#externalDocs}}
+      * {{description}}
+      * @see <a href="{{url}}">{{summary}} Documentation</a>
+    {{/externalDocs}}
+    */
+    {{#isDeprecated}}
+      @Deprecated
+    {{/isDeprecated}}
+    public ApiResponse<{{#vendorExtensions.x-java-is-response-void}}Void{{/vendorExtensions.x-java-is-response-void}}{{^vendorExtensions.x-java-is-response-void}}{{{returnType}}}{{/vendorExtensions.x-java-is-response-void}}> {{operationId}}WithHttpInfo({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
+  {{/operation}}
+    }
+{{/operations}}

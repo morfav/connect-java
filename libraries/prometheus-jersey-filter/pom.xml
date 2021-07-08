@@ -4,14 +4,14 @@
 
 	<groupId>cd.connect.common</groupId>
 	<artifactId>connect-prometheus-jersey</artifactId>
-	<version>2.3-SNAPSHOT</version>
+	<version>3.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>Prometheus Jersey Annotation Support</name>
 
 	<url>https://clearpointnz.github.io/connect/</url>
 
 	<description>
-		Prometheus Filter using the Dymanic Feature of Jersey
+		Prometheus Filter using the Dymanic Feature of Jersey 3
 	</description>
 
 	<developers>
@@ -38,12 +38,12 @@
 	</scm>
 
 	<properties>
-		<maven.version>3.3.9</maven.version>
+		<maven.version>3.5</maven.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<asciidoclet.version>1.5.4</asciidoclet.version>
 		<dependency.check.fastfail>false</dependency.check.fastfail>
-		<jersey.version>2.23</jersey.version>
-		<prometheus.version>0.0.14</prometheus.version>
+		<jersey.version>3.0.2</jersey.version>
+		<prometheus.version>0.11.0</prometheus.version>
 	</properties>
 
 	<dependencies>
@@ -66,64 +66,26 @@
 
 		<!-- jaxrs related functionality -->
 		<dependency>
-			<groupId>javax.ws.rs</groupId>
-			<artifactId>javax.ws.rs-api</artifactId>
-			<version>2.0.1</version>
+			<groupId>jakarta.ws.rs</groupId>
+			<artifactId>jakarta.ws.rs-api</artifactId>
+			<version>3.0.0</version>
 		</dependency>
 
 		<!-- junit -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<version>4.13.2</version>
 			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
-
-	<profiles>
-		<profile>
-			<!-- adtivate the sonatype profile when a release is being done -->
-			<id>sonatype</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-deploy-plugin</artifactId>
-						<configuration>
-							<skip>true</skip>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.sonatype.plugins</groupId>
-						<artifactId>nexus-staging-maven-plugin</artifactId>
-						<version>1.6.7</version>
-						<executions>
-							<execution>
-								<id>deploy</id>
-								<goals>
-									<goal>deploy</goal>
-								</goals>
-								<phase>deploy</phase>
-							</execution>
-						</executions>
-						<configuration>
-							<serverId>sonatype-staging</serverId>
-							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-							<autoReleaseAfterClose>true</autoReleaseAfterClose>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>io.repaint.maven</groupId>
 				<artifactId>tiles-maven-plugin</artifactId>
-				<version>2.10</version>
+				<version>2.23</version>
 				<extensions>true</extensions>
 				<configuration>
 					<filtering>false</filtering>

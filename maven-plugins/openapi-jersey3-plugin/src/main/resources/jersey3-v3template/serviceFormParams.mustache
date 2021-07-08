@@ -1,0 +1,1 @@
+{{#isFormParam}}{{^notFile}}{{^isFile}}{{{dataType}}} {{paramName}}{{/isFile}}{{/notFile}}{{#notFile}}{{{dataType}}} {{paramName}}{{/notFile}}{{#isFile}}InputStream inputStream, FormDataContentDisposition fileDetail{{/isFile}}{{/isFormParam}}
