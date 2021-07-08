@@ -4,7 +4,7 @@
 
   <groupId>cd.connect.jersey</groupId>
   <artifactId>connect-jersey-common</artifactId>
-  <version>2.1-SNAPSHOT</version>
+  <version>2.1</version>
   <name>connect-jersey-common</name>
 
   <description>
@@ -32,7 +32,7 @@
     <connection>scm:git:git@github.com:clearpointnz/connect-java.git</connection>
     <developerConnection>scm:git:git@github.com:clearpointnz/connect-java.git</developerConnection>
     <url>git@github.com:clearpointnz/connect-java.git</url>
-    <tag>HEAD</tag>
+    <tag>connect-jersey-common-2.1</tag>
   </scm>
 
 
