@@ -4,7 +4,7 @@
 
   <groupId>cd.connect.common</groupId>
 	<artifactId>connect-java-logging</artifactId>
-	<version>2.2</version>
+	<version>2.3-SNAPSHOT</version>
 	<name>connect-java-logging</name>
 
 	<description>
@@ -33,7 +33,7 @@
 		<connection>scm:git:git@github.com:clearpointnz/connect-java-logging.git</connection>
 		<developerConnection>scm:git:git@github.com:clearpointnz/connect-java-logging.git</developerConnection>
 		<url>git@github.com:clearpointnz/connect-java-logging.git</url>
-		<tag>connect-java-logging-2.2</tag>
+		<tag>HEAD</tag>
 	</scm>
 
   <dependencies>
