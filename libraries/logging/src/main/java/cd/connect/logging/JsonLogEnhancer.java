@@ -10,10 +10,8 @@ import java.util.Map;
  * @author Richard Vowles - https://plus.google.com/+RichardVowles
  */
 public interface JsonLogEnhancer {
-  /**
+  /*
    * The ordering of the priority of this processor.
-   *
-   * @return
    */
   int getMapPriority();
 
