@@ -126,18 +126,15 @@ public class ConnectContext {
     return null;
   }
 
-  /**
+  /*
    * The complete context.
-   *
-   * @return
    */
   public static Map<String, String> getContext() {
     return MDC.getCopyOfContextMap();
   }
 
-  /**
+  /*
    * used when transferring context between threads
-   * @param pushContext
    */
   public static void setContext(Map<String, String> pushContext) {
     MDC.setContextMap(pushContext);
