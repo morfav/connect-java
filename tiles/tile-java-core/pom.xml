@@ -5,7 +5,7 @@
   <!-- tile artifacts are always released -->
   <groupId>cd.connect.tiles</groupId>
 	<artifactId>tile-java-core</artifactId>
-	<version>1.2-SNAPSHOT</version>
+	<version>1.2</version>
   <packaging>tile</packaging>
 	<name>tile-java-core - common plugins for jvm apps</name>
 
