@@ -2,13 +2,14 @@ package org.glassfish.jersey.logging;
 
 import cd.connect.jersey.common.logging.JerseyFiltering;
 import cd.connect.jersey.common.logging.JerseyFilteringConfiguration;
-import com.google.common.collect.ImmutableList;
 import org.fest.assertions.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
+
+import java.util.Arrays;
 
 public class BaseFilteringLoggerTest {
 
@@ -24,7 +25,7 @@ public class BaseFilteringLoggerTest {
     public void testAuthorizationHeader_multiple() {
         // GIVEN
         MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
-        headers.put("Authorization", ImmutableList.of("Bearer ABCDEFGHIJKL", "Bearer MNOPQRSTUV")); // <-- bad structure
+        headers.put("Authorization", Arrays.asList("Bearer ABCDEFGHIJKL", "Bearer MNOPQRSTUV")); // <-- bad structure
         StringBuilder result = new StringBuilder();
 
         // WHEN
