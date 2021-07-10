@@ -125,6 +125,10 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
   public void processOpts() {
     super.processOpts();
 
+    if (!useBeanValidation) {
+      additionalProperties.remove("useBeanValidation");
+    }
+
     apiTemplateFiles.remove("api.mustache");
 
     // no documentation, we're british

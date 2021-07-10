@@ -1,3 +1,0 @@
-webxml=file:/WEB-INF/web.xml
-fragment=jar:file:/jars/fragment.jar!/META-INF/web-fragment.xml
-resource=jar:file:/jars/fragment.jar!/META-INF/resources/

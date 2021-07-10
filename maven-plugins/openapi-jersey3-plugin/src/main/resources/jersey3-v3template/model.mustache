@@ -18,9 +18,10 @@ import com.fasterxml.jackson.annotation.*;
 {{#withXml}}
 import jakarta.xml.bind.annotation.*;
 {{/withXml}}
+{{#useBeanValidation}}
 import jakarta.validation.constraints.*;
 import jakarta.validation.Valid;
-
+{{/useBeanValidation}}
 {{#models}}
 {{#model}}
 {{#isEnum}}{{>modelEnum}}{{/isEnum}}{{^isEnum}}{{>pojo}}{{/isEnum}}
