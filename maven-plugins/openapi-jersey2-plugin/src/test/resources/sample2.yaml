@@ -4,6 +4,35 @@ info:
   description: Sample API for test case for k8s
   version: "1.1.1"
 paths:
+  /initiate-subscription:
+    post:
+      description: "Initiate the customer subscription process"
+      security:
+        - bearerAuth: [ ]
+      operationId: initiateSubscription
+      tags:
+        - SubscriptionService
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InitiateSubscriptionRequest"
+      responses:
+        302:
+          description: "redirected"
+          headers:
+            Location:
+              schema:
+                type: string
+        400:
+          description: "Bad request"
+        401:
+          description: "No permission"
+        403:
+          description: "Forbidden"
+        422:
+          description: "Incorrect data supplied"
   /api/v1/test:
     get:
       operationId: getTest
@@ -226,6 +255,11 @@ paths:
                 $ref: "#/components/schemas/com.bluetrainsoftware.AddProps2"
 components:
   schemas:
+    InitiateSubscriptionRequest:
+      properties:
+        id:
+          type: string
+          format: UUID
     MyRequest:
       oneOf:
         - $ref: "#/components/schemas/EventRequest"

@@ -4,6 +4,35 @@ info:
   description: Sample taken from random parts of the FeatureHub-IO (https://featurehub.io) API
   version: "1.1.1"
 paths:
+  /initiate-subscription:
+    post:
+      description: "Initiate the customer subscription process"
+      security:
+        - bearerAuth: [ ]
+      operationId: initiateSubscription
+      tags:
+        - SubscriptionService
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InitiateSubscriptionRequest"
+      responses:
+        302:
+          description: "redirected"
+          headers:
+            Location:
+              schema:
+                type: string
+        400:
+          description: "Bad request"
+        401:
+          description: "No permission"
+        403:
+          description: "Forbidden"
+        422:
+          description: "Incorrect data supplied"
   /mr-api/authentication/{id}/replaceTempPassword:
     parameters:
       - name: id
@@ -50,6 +79,11 @@ components:
       scheme: bearer
       bearerFormat: JWT    # optional, arbitrary value for documentation purposes
   schemas:
+    InitiateSubscriptionRequest:
+      properties:
+        id:
+          type: string
+          format: UUID
     PasswordReset:
       required:
         - password

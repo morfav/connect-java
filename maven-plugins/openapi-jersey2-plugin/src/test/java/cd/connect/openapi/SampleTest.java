@@ -12,8 +12,9 @@ public class SampleTest {
     OpenAPIGenerator.main(Arrays.asList("generate",
       "--input-spec", location,
       "--generator-name", "jersey2-api",
-      "--additional-properties", "server-security",
-      "--additional-properties", "x-no-copy",
+      "--additional-properties", "server-delegate",
+      "--additional-properties", "client",
+//      "--additional-properties", "x-no-copy",
 //      "--api-package", "api",
 //      "--model-package", "model",
       "--output", "target/" + getClass().getSimpleName())
