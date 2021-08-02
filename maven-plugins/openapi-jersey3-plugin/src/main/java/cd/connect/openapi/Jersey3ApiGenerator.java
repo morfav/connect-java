@@ -248,6 +248,12 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
         .ifPresent(resp -> {
           op.vendorExtensions.put("statusCode", resp.code);
         });
+
+
+      if (op.responses.stream().noneMatch(r -> r.is2xx)) {
+        op.vendorExtensions.remove("x-java-is-response-void");
+        op.returnType = null; // force it to be Response object
+      }
     }
 
     return objs;
