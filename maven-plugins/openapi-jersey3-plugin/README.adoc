@@ -11,8 +11,11 @@ The current authors of this repository are:
 
 
 
-== changes in 6.x
+== changes
 
+* 7.5: allowing overrides of individual properties by using x-basename
+* 7.4: fixing headers for etags and allowing non-200 responses
+* 7.1: move to Jakarta APIs
 * 6.5: support UUIDs properly
 * 6.2: introduces the ReturnStatus when the function returns a 2xx response that isn't 200. Jersey when
 returning a class will always return 200, even if your API says 201 or 204. You need to upgrade to the 1.4
@@ -29,7 +32,7 @@ This makes a major change to the way that grouping of APIs are done and honours 
 languages of using the `tags` field of each API endpoint. If you don't have these, it will continue to use the 4.x
 functionality of using the basePath.
 
-This is a breaking change for those using the server-security model as those are now named after the tags. 
+This is a breaking change for those using the server-security model as those are now named after the tags.
 
 The is a new supported model called `server-delegate` which will allow you support optional fields in an object.
 This means that the normal Security interface is created, but a delegate instance of for that is created, along
@@ -126,10 +129,10 @@ public class AuthServiceDelegator implements AuthService {
 
 the AuthServiceDelegator you need to `bind` in Jersey-land. So you will `.register(AuthService.class)` and
 then in your code you will need to bind this one - we recommend as a singleton as that will make it perform
-the best. 
+the best.
 
 The annotation is repeated in case you have interceptors, the method they get is this method so if
-you are looking for the annotation, you need it. 
+you are looking for the annotation, you need it.
 
 The base interface you will need to implement is as follows (and is generated):
 
@@ -163,18 +166,18 @@ Also as Swagger was replaced by OpenAPI 3 in 2017, we have now dropped all suppo
 
 We have swapped to the `org.openapitools` project instead of the current Swagger one, and it has
 a raft of changes over the 3.x version. We are now also generating three different API sets in one codebase,
-and you need to chose which ones you generate or you will get no APIs, only models. 
+and you need to chose which ones you generate or you will get no APIs, only models.
 
 ----
 <additionalProperties>
   <additionalProperty>server-security</additionalProperty>
 </additionalProperties>
-----              
+----
 
 You can chose from `client`, `server` and `server-security`. `client` generates client only APIs, but it does
 rely on `server` as that is a plain interface. You can generate `server` by itself. You can generate `server-security`
 by itself or all three. `server-security` is like `server` but you have an `@Context SecurityContext securityContext` at
-the end of the line. 
+the end of the line.
 
 You can also use bean validation:
 
@@ -185,7 +188,7 @@ You can also use bean validation:
     <value>true</value>
   </configOption>
 </configOptions>
----- 
+----
 
 Which will enforce bean validation, but you do need to add a useful ConstraintExceptionHandler yourself.
 

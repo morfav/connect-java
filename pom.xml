@@ -29,7 +29,6 @@
 	  <module>libraries/logging</module>
 	  <module>libraries/prometheus-jersey-filter</module>
 	  <module>maven-plugins/openapi-jersey3-plugin</module>
-	  <module>maven-plugins/openapi-jersey2-plugin</module>
   </modules>
 
   <build>

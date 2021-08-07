@@ -270,6 +270,7 @@ components:
     InitiateSubscriptionRequest:
       properties:
         id:
+          x-basename: longIdName
           type: string
           format: UUID
     MyRequest:
