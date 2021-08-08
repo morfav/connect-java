@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class DeclaredConfigResolver {
@@ -26,15 +27,17 @@ public class DeclaredConfigResolver {
 
   private Coercions coercions = new Coercions();
 
-  private ConfigurationRepository configurations = new InlineConfigurationRepository();
 
   private DeclaredConfigResolver() {
     // Michael has a thing for making his classes only usable by injection
     Set<Coercion> extensions = Collections.singleton(new MapCoercion(coercions));
-    
+
     setInstanceValue(coercions, "extensions", extensions);
 
-    Set<ConfigurationSource> configSources = Collections.singleton(new SystemPropertiesConfigurationSource());
+    Set<ConfigurationSource> configSources = new LinkedHashSet<>();
+
+    configSources.add(new SystemPropertiesConfigurationSource());
+    configSources.add(new EnvironmentConfigurationSource());
 
     setInstanceValue(resolver, "sources", configSources);
 
@@ -57,26 +60,24 @@ public class DeclaredConfigResolver {
 
 
   protected void resolveBean(Object bean) {
+    ConfigurationRepository configurations = new InlineConfigurationRepository();
+
     new Reflector()
       .forEachField(new ConfigKeyProcessor(configurations))
       .process(bean);
 
-    log.debug("starting resolution - pass 1");
     for (Configuration configuration : configurations)
       resolveAttributes(bean, configuration);
 
-    log.debug("starting resolution - pass 2");
     for (Configuration configuration : configurations)
       for (ConfigurationAttribute attribute : configuration)
         if (attribute.requiresResolution()) {
-          log.debug("resolve second pass {}", attribute);
           resolver.resolve(attribute);
           attribute.applyCoercion(coercions);
         }
   }
 
   private void resolveAttributes(Object target, Configuration configuration) {
-    log.debug("resolve {}", configuration);
     try {
       for (ConfigurationAttribute attribute : configuration) {
         resolveAttribute(target, attribute);
@@ -89,7 +90,6 @@ public class DeclaredConfigResolver {
 
   private void resolveAttribute(Object target, ConfigurationAttribute attribute) {
     if (attribute.requiresResolution() && attribute.getTarget() == target) {
-      log.debug("resolve {}", attribute);
       resolver.resolve(attribute);
       attribute.applyCoercion(coercions);
       attribute.update();
