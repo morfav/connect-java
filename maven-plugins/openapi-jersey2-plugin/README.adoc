@@ -6,7 +6,7 @@ Converts swagger/openapi yaml or json files into JAX-RS apis based on Jersey2
 
 The current authors of this repository are:
 
-- _Irina Southwell (nee Капрельянц Ирина)_, Principal Engineer (https://www.linkedin.com/in/irina-southwell-9727a422/)
+- _Irina Southwell (nee Капрельянц Ирина)_, Senior Software Engineer (https://www.linkedin.com/in/irina-southwell-9727a422/)
 - _Richard Vowles_, Software Developer (https://www.linkedin.com/in/richard-vowles-72035193/)
 
 
