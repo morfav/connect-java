@@ -15,6 +15,7 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 {{#imports}}import {{import}};
 {{/imports}}
@@ -28,6 +29,7 @@ import jakarta.inject.Inject;
 
 {{>generatedAnnotation}}
 {{#operations}}
+	@Singleton
   public class {{classname}}Delegator implements {{classname}} {
     private final {{classname}}Delegate delegate;
 

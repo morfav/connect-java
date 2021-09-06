@@ -334,13 +334,13 @@ components:
     EventStatus:
       type: string
       enum:
-        - STREAMING
-        - ALLOCATING
-        - ALLOCATED
-        - CLOSING
-        - CLOSED
-        - PENDING
-        - ARCHIVING
+        - streaming
+        - Allocating
+        - aLLocaTed
+        - closing
+        - closed
+        - pendinG
+        - archiving
     "com.bluetrainsoftware.AddProps1":
       properties:
         extra:

@@ -35,13 +35,9 @@ import jakarta.validation.constraints.*;
 {{#hasConsumes}}@Consumes({ {{#consumes}}"{{{mediaType}}}"{{^-last}}, {{/-last}}{{/consumes}} }){{/hasConsumes}}
 {{#hasProduces}}@Produces({ {{#produces}}"{{{mediaType}}}"{{^-last}}, {{/-last}}{{/produces}} }){{/hasProduces}}
 {{#operations}}
+
 @Path("{{commonPath}}")
 public interface {{classname}} {
-
-
-  {{#serviceDefaultUrl}}
-      public static String DEFAULT_SERVICE_URL = "{{{serviceDefaultUrl}}}";
-  {{/serviceDefaultUrl}}
 
   {{#operation}}
   /**
