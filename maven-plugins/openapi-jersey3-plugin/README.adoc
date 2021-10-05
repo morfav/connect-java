@@ -11,6 +11,9 @@ The current authors of this repository are:
 
 == changes
 
+* 7.7: Clean up an issue with enums, and support `x-package` in a class which allows you to override the package
+that a specific class is actually in. This leads to better composition where all classes do not have to be in  the same package
+and you can share snippets of yaml.
 * 7.6: Delegators annotated with @Singleton and support for enums that match the OpenAPI doc exactly, previously
 they had to be upper case or they would not match.
 * 7.5: allowing overrides of individual properties by using x-basename

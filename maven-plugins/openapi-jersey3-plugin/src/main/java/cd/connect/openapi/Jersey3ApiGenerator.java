@@ -26,9 +26,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.openapitools.codegen.utils.StringUtils.camelize;
@@ -266,15 +268,55 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 
 
 	Map<String, CodegenModel> modelNames = new HashMap<>();
+	Map<String, CodegenModel> packageOverrideModelNames = new HashMap<>();
+	Set<String> newImportsBecausePackageOverrides = new HashSet<>();
 
+	@Override
+	public String modelFilename(String templateName, String modelName) {
+		if (packageOverrideModelNames.containsKey(modelName)) {
+			CodegenModel model = packageOverrideModelNames.get(modelName);
+
+			String modelFolder =
+			(this.outputFolder + File.separator + this.sourceFolder + File.separator +
+				model.getVendorExtensions().get("x-package").toString().replace('.', File.separatorChar))
+				.replace('/', File.separatorChar);
+
+			String suffix = this.modelTemplateFiles().get(templateName);
+
+			return modelFolder + File.separator + this.toModelFilename(modelName) + suffix;
+		}
+
+		return super.modelFilename(templateName, modelName);
+	}
+
+	@Override
+	public Map<String, Object> postProcessAllModels(Map<String, Object> objs) {
+		Map<String, Object> newObjs = super.postProcessAllModels(objs);
+
+		newObjs.keySet().forEach(modelName -> {
+			Map<String, Object> info = (Map<String, Object>)newObjs.get(modelName);
+
+			newImportsBecausePackageOverrides.forEach(pkg -> {
+				if (!pkg.equals(info.get("package"))) {
+					Map<String, String> newImports = new HashMap<>();
+					newImports.put("import", pkg + ".*");
+					List<Map<String, String>> imports = (List<Map<String, String>>)info.get("imports");
+					imports.add(newImports);
+				}
+			});
+
+		});
+
+		return newObjs;
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Object> postProcessModels(Map<String, Object> objs) {
-		objs = super.postProcessModels(objs);
+		final Map<String, Object> newObjs = super.postProcessModels(objs);
 
-		List<Map<String, Object>> models = (List<Map<String, Object>>) objs.get("models");
-		List<HashMap<String, String>> imports = (List<HashMap<String, String>>) objs.get("imports");
+		List<Map<String, Object>> models = (List<Map<String, Object>>) newObjs.get("models");
+		List<HashMap<String, String>> imports = (List<HashMap<String, String>>) newObjs.get("imports");
 		imports.forEach((map) -> {
 			if (map.containsKey("import")) {
 				if (map.get("import").startsWith("io.swagger")) {
@@ -283,18 +325,42 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 			}
 		});
 		imports.removeIf(Map::isEmpty);
+
 		models.forEach(model -> {
 			CodegenModel m = (CodegenModel) model.get("model");
 			modelNames.put(m.classname, m);
+			if (m.getVendorExtensions() != null && m.getVendorExtensions().containsKey("x-package")) {
+				packageOverrideModelNames.put(m.classname, m);
+				String packageName = m.getVendorExtensions().get("x-package").toString();
+				newObjs.put("package", packageName);
+				model.put("importPath", packageName);
+				newImportsBecausePackageOverrides.add(packageName);
+			} else {
+				newObjs.put("package", this.modelPackage());
+			}
+
 			m.vars.forEach(p -> {
 					if (p.getVendorExtensions().containsKey("x-basename")) {
 						p.setBaseName(p.getVendorExtensions().get("x-basename").toString());
 					}
 				}
 			);
+
+			// there is a bug in 5.2.1 where we are getting duplicate enums
+			if (m.allowableValues != null && m.allowableValues.get("enumVars") != null) {
+				List<Map<String, Object>> enumVars = (List<Map<String, Object>>)m.allowableValues.get("enumVars");
+				List<Map<String, Object>> newList = new ArrayList<>();
+				enumVars.forEach(var -> {
+					Object name = var.get("name");
+					if (newList.stream().noneMatch(v -> v.get("name").equals(name))) {
+						newList.add(var);
+					}
+				});
+				m.allowableValues.put("enumVars", newList);
+			}
 		});
 
-		return objs;
+		return newObjs;
 	}
 
 	@Override
