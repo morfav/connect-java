@@ -305,6 +305,18 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 				}
 			});
 
+			// now walk through all the imports and re-write them
+			List<Map<String, String>> importStatements = (List<Map<String, String>>)info.get("imports");
+			importStatements.forEach(statement -> {
+				String iStatement = statement.get("import");
+				if (iStatement != null && iStatement.startsWith(modelPackage())) {
+					String statementModelName = iStatement.substring(modelPackage().length()+1);
+					if (packageOverrideModelNames.containsKey(statementModelName)) {
+						statement.put("import", packageOverrideModelNames
+							.get(statementModelName).getVendorExtensions().get("x-package").toString() + "." + statementModelName);
+					}
+				}
+			});
 		});
 
 		return newObjs;

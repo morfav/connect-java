@@ -11,6 +11,9 @@ The current authors of this repository are:
 
 == changes
 
+* 7.8: Fixes to the x-package support (a model with x-package can change the actual package it gets deployed into
+supporting merging common models in and placing them in common locations). Support for Kotlin Nullable and Non-Nullable
+annotations.
 * 7.7: Clean up an issue with enums, and support `x-package` in a class which allows you to override the package
 that a specific class is actually in. This leads to better composition where all classes do not have to be in  the same package
 and you can share snippets of yaml.

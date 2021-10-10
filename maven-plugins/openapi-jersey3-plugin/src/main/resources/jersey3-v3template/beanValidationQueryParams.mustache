@@ -1,1 +1,1 @@
-{{#required}} @NotNull{{/required}}{{>beanValidationCore}} 
+{{#required}} @org.jetbrains.annotations.NotNull @jakarta.validation.constraints.NotNull{{/required}}{{^required}}@org.jetbrains.annotations.Nullable{{/required}}{{>beanValidationCore}}

@@ -21,8 +21,14 @@
       <artifactId>jackson-core</artifactId>
       <version>[${jackson.version}]</version>
     </dependency>
+	  <dependency>
+		  <groupId>org.jetbrains</groupId>
+		  <artifactId>annotations</artifactId>
+		  <version>22.0.0</version>
+	  </dependency>
 
-    <!-- for the @ReturnStatus -->
+
+	  <!-- for the @ReturnStatus -->
     <dependency>
       <groupId>cd.connect.openapi.gensupport</groupId>
       <artifactId>openapi-jersey3-support</artifactId>

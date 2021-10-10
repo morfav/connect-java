@@ -59,6 +59,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#parcela
   public static final String SERIALIZED_NAME_{{nameInSnakeCase}} = "{{baseName}}";
   @SerializedName(SERIALIZED_NAME_{{nameInSnakeCase}})
   {{/gson}}
+  {{#required}}@org.jetbrains.annotations.NotNull{{/required}}{{^required}}@org.jetbrains.annotations.Nullable{{/required}}
   private {{{datatypeWithEnum}}} {{name}}{{#defaultValue}} = {{{.}}}{{/defaultValue}};
 
   {{/vars}}
@@ -85,7 +86,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#parcela
   {{/parcelableModel}}
   {{#vars}}
   {{^isReadOnly}}
-  public {{classname}} {{name}}({{{datatypeWithEnum}}} {{name}}) {
+  public {{classname}} {{name}}({{#required}}@org.jetbrains.annotations.NotNull{{/required}}{{^required}}@org.jetbrains.annotations.Nullable{{/required}} {{{datatypeWithEnum}}} {{name}}) {
     this.{{name}} = {{name}};
     return this;
   }
@@ -139,14 +140,13 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#parcela
   }
   {{^isReadOnly}}
 
-  public void {{setter}}({{{datatypeWithEnum}}} {{name}}) {
+  public void {{setter}}({{#required}}@org.jetbrains.annotations.NotNull{{/required}}{{^required}}@org.jetbrains.annotations.Nullable{{/required}} {{{datatypeWithEnum}}} {{name}}) {
     this.{{name}} = {{name}};
   }
   {{/isReadOnly}}
 
   {{/vars}}
 
-{{^supportJava6}}
   @Override
   public boolean equals(java.lang.Object o) {
   {{#useReflectionEqualsHashCode}}
@@ -177,29 +177,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#parcela
   {{/useReflectionEqualsHashCode}}
   }
 
-{{/supportJava6}}
-{{#supportJava6}}
-  @Override
-  public boolean equals(java.lang.Object o) {
-  if (this == o) {
-    return true;
-  }
-  if (o == null || getClass() != o.getClass()) {
-    return false;
-  }{{#hasVars}}
-    {{classname}} {{classVarName}} = ({{classname}}) o;
-    return {{#vars}}ObjectUtils.equals(this.{{name}}, {{classVarName}}.{{name}}){{^-last}} &&
-    {{/-last}}{{/vars}}{{#parent}} &&
-    super.equals(o){{/parent}};{{/hasVars}}{{^hasVars}}
-    return true;{{/hasVars}}
-  }
 
-  @Override
-  public int hashCode() {
-    return ObjectUtils.hashCodeMulti({{#vars}}{{name}}{{^-last}}, {{/-last}}{{/vars}}{{#parent}}{{#hasVars}}, {{/hasVars}}super.hashCode(){{/parent}});
-  }
-
-{{/supportJava6}}
 
   @Override
   public String toString() {
