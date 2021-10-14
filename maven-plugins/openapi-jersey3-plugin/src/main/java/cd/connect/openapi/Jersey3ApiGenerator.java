@@ -6,8 +6,11 @@ import com.google.googlejavaformat.java.FormatterException;
 import com.google.googlejavaformat.java.JavaFormatterOptions;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.Paths;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.maven.MavenExecutionException;
 import org.openapitools.codegen.CliOption;
 import org.openapitools.codegen.CodegenConfig;
 import org.openapitools.codegen.CodegenConstants;
@@ -45,6 +48,7 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 	private static final String SERVICE_DEFAULT_URL = "serviceDefaultUrl";
 	// if this is set, then we always use this as the base path if it exists in all of the paths in the set of operations
 	private static final String SERVICE_BASE = "serviceUrlBase";
+	private static final String PREFIX_ALL_PATHS_USING_GET = "prefixGetPath";
 
 	public Jersey3ApiGenerator() {
 		super();
@@ -97,11 +101,52 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 			"extensions as necessary";
 	}
 
+	// we need to keep this for determining if we are using auth later
+	private int parentPathParamCount = 0;
+
 	@Override
 	public void preprocessOpenAPI(OpenAPI openAPI) {
 		super.preprocessOpenAPI(openAPI);
 		if (openAPI.getServers() != null && openAPI.getServers().size() == 1) {
 			additionalProperties.put(SERVICE_DEFAULT_URL, openAPI.getServers().get(0).getUrl());
+		}
+
+		if (additionalProperties.containsKey(PREFIX_ALL_PATHS_USING_GET)) {
+			String getPath = additionalProperties.get(PREFIX_ALL_PATHS_USING_GET).toString();
+			PathItem parentPath = openAPI.getPaths().get(getPath);
+
+			if (parentPath == null || parentPath.getGet() == null ) {
+				throw new RuntimeException(
+					String.format("Attempt to get path `%s` failed because it is not in spec or has no GET",
+					getPath));
+			}
+
+			if (!getPath.endsWith("/")) {
+				getPath = getPath + "/";
+			}
+
+			// this allows us to pick up later for each parameter and drop them from the list if we are using
+			//
+			parentPath.getGet().getParameters().forEach(p -> p.addExtension("x-" + PREFIX_ALL_PATHS_USING_GET, "true"));
+			parentPathParamCount = parentPath.getGet().getParameters().size();
+
+			final String prefixPath = getPath;
+
+			Paths newPaths = new Paths();
+
+			openAPI.getPaths().forEach((path, pathItem) -> {
+				if (pathItem != parentPath) {
+					parentPath.getGet().getParameters().forEach(pathItem::addParametersItem);
+					if (path.startsWith("/")) {
+						path = path.substring(1);
+					}
+					path = prefixPath + path;
+					newPaths.put(path, pathItem);
+				}
+			});
+
+			openAPI.getPaths().clear();
+			openAPI.setPaths(newPaths);
 		}
 	}
 
@@ -141,19 +186,24 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 
 		modelTemplateFiles.put("model.mustache", ".java");
 
-		if (additionalProperties.get("client") != null) {
+		if (additionalProperties.containsKey("client")) {
 			apiTemplateFiles.put("Impl.mustache", ".java");
 			apiTemplateFiles.put("ClientService.mustache", ".java");
 		}
-		if (additionalProperties.get("server") != null) {
+		if (additionalProperties.containsKey("server")) {
 			apiTemplateFiles.put("Service.mustache", ".java");
 		}
-		if (additionalProperties.get("server-security") != null) {
+		if (additionalProperties.containsKey("server-security")) {
 			apiTemplateFiles.put("SecurityService.mustache", ".java");
 		}
-		if (additionalProperties.get("server-delegate") != null) {
+		if (additionalProperties.containsKey("server-delegate")) {
 			apiTemplateFiles.put("DelegateServerService.mustache", ".java");
 			apiTemplateFiles.put("DelegateService.mustache", ".java");
+			apiTemplateFiles.put("SecurityService.mustache", ".java");
+		}
+
+		if (usingDelegateHolderPackage()) {
+			apiTemplateFiles.put("DelegateServerService.mustache", ".java");
 			apiTemplateFiles.put("SecurityService.mustache", ".java");
 		}
 
@@ -178,6 +228,22 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 			implFolder = (String) additionalProperties.get(CodegenConstants.IMPL_FOLDER);
 		}
 	}
+
+	// if we are using delegate style but are actually delegating to another implementation
+	private boolean usingDelegateHolderPackage() {
+		return additionalProperties.containsKey("delegateHolderPackage");
+	}
+
+	// are we using a single path: get: as a prefix path to override other methods?
+	private boolean usingPrefixPathSupport() {
+		return additionalProperties.containsKey(PREFIX_ALL_PATHS_USING_GET);
+	}
+
+	// ensure we remove the
+	private boolean stripPrefixPathSupportForDelegates() {
+		return additionalProperties.containsKey("delegatePackageStripPrefix");
+	}
+
 
 	@Override
 	public Map<String, Object> postProcessOperationsWithModels(Map<String, Object> objs, List<Object> allModels) {
@@ -209,6 +275,8 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 			objs.put(SERVICE_DEFAULT_URL, additionalProperties.get(SERVICE_DEFAULT_URL));
 		}
 
+		String className = ((Map<String, Object>)objs.get("operations")).get("classname").toString();
+
 		for (CodegenOperation op : codegenOperations) {
 			// need to ensure the path if it has params as <> that it uses {} instead
 			op.path = op.path.replace('<', '{').replace('>', '}');
@@ -235,19 +303,35 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 				if (optionalQueryParams.size() > 0) {
 					op.vendorExtensions.put("x-has-delegator-holder", Boolean.TRUE);
 					op.vendorExtensions.put("x-delegator-holder-params", optionalQueryParams);
-					op.vendorExtensions.put("x-class-delegator-holder", camelize(op.operationId + "-holder", false));
+					String delegateHolderPrefix = additionalProperties.containsKey("delegateHolderPackage") ?
+							additionalProperties.get("delegateHolderPackage").toString() + String.format(".%sDelegate.", className)
+						: "";
+					// additionalProperties["delegateHolderPackage"].toString() + ".${className}Delegate." + StringUtils
+					// .camelize(op.operationId + "-holder", false)
+					op.vendorExtensions.put("x-class-delegator-holder", delegateHolderPrefix + camelize(op.operationId + "-holder", false));
 				}
 			}
 
+			// .filter { p: CodegenParameter -> !"alSlice".equals(p.paramName) && !"alOrganisation".equals(p.paramName) }
+			boolean amStrippingPrefixPath = stripPrefixPathSupportForDelegates();
 			// regardless we don't want un-required query params in this one
 			final String params =
-				op.allParams.stream().filter(p -> !p.isQueryParam || p.required).map(p -> p.paramName).collect(Collectors.joining(","));
+				op.allParams.stream()
+					.filter(p -> !p.isQueryParam || p.required)
+					.filter(p -> !amStrippingPrefixPath || (p.vendorExtensions == null || !p.vendorExtensions.containsKey("x-" + PREFIX_ALL_PATHS_USING_GET) ))
+					.map(p -> p.paramName)
+					.collect(Collectors.joining(","));
 			if (params.length() > 0) {
 				op.vendorExtensions.put("x-has-java-params", Boolean.TRUE);
 				op.vendorExtensions.put("x-java-params", params);
 				op.vendorExtensions.put("x-java-params-plus-types",
 					op.allParams.stream().filter(p -> !p.isQueryParam || p.required).map(p -> p.dataType + " " + p.paramName).collect(Collectors.joining(","))
 				);
+			}
+
+			// figuring out if we need a comma in the delegate is too complicated in mustache, so we figure it out here.
+			if (op.allParams != null && ((op.allParams.toArray().length != parentPathParamCount && usingPrefixPathSupport()) || (!usingPrefixPathSupport() && op.allParams.size() > 0)) && op.authMethods != null && op.authMethods.size() > 0) {
+				op.vendorExtensions.put("x-has-auth", ", ");
 			}
 
 			op.responses.stream().filter(r -> r.is2xx && !"200".equalsIgnoreCase(r.code)
@@ -409,6 +493,8 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 	private Map<String, Object> getOperations(Map<String, Object> objs) {
 		return (Map<String, Object>) objs.get("operations");
 	}
+
+
 
 	@Override
 	public String toModelName(String name) {

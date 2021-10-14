@@ -31,12 +31,22 @@ import jakarta.inject.Singleton;
 {{#operations}}
 	@Singleton
   public class {{classname}}Delegator implements {{classname}} {
-    private final {{classname}}Delegate delegate;
+{{#delegateHolderPackage}}
+	private final {{delegateHolderPackage}}.{{classname}}Delegate delegate;
 
-    @Inject
-    public {{classname}}Delegator({{classname}}Delegate delegate) {
-      this.delegate = delegate;
-    }
+	@Inject
+	public {{classname}}Delegator({{delegateHolderPackage}}.{{classname}}Delegate delegate) {
+	  this.delegate = delegate;
+	}
+{{/delegateHolderPackage}}
+{{^delegateHolderPackage}}
+	private final {{classname}}Delegate delegate;
+
+	@Inject
+	public {{classname}}Delegator({{classname}}Delegate delegate) {
+	  this.delegate = delegate;
+	}
+{{/delegateHolderPackage}}
 
   {{#operation}}
 
@@ -54,13 +64,18 @@ import jakarta.inject.Singleton;
     {{#vendorExtensions.x-java-annotations}}{{{.}}}{{/vendorExtensions.x-java-annotations}}
     public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}Response {{/returnType}}{{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}{{#authMethods}}{{#hasParams}}, {{/hasParams}}SecurityContext securityContext{{/authMethods}}) {
   {{#vendorExtensions.x-has-delegator-holder}}
+	  {{#delegateHolderPackage}}
+		  final {{{vendorExtensions.x-class-delegator-holder}}} holder = new {{{vendorExtensions.x-class-delegator-holder}}}();
+	  {{/delegateHolderPackage}}
+	  {{^delegateHolderPackage}}
       final {{classname}}Delegate.{{{vendorExtensions.x-class-delegator-holder}}} holder = new {{classname}}Delegate.{{{vendorExtensions.x-class-delegator-holder}}}();
+	  {{/delegateHolderPackage}}
     {{#vendorExtensions.x-delegator-holder-params}}
       holder.{{paramName}} = {{paramName}};
     {{/vendorExtensions.x-delegator-holder-params}}
   {{/vendorExtensions.x-has-delegator-holder}}
     {{^vendorExtensions.x-java-is-response-void}}return {{/vendorExtensions.x-java-is-response-void}}
-  delegate.{{operationId}}({{{vendorExtensions.x-java-params}}} {{#vendorExtensions.x-has-delegator-holder}}{{#vendorExtensions.x-has-java-params}}, {{/vendorExtensions.x-has-java-params}}holder{{/vendorExtensions.x-has-delegator-holder}}{{#authMethods}}{{#hasParams}}, {{/hasParams}}securityContext{{/authMethods}});
+	    delegate.{{operationId}}({{{vendorExtensions.x-java-params}}} {{#vendorExtensions.x-has-delegator-holder}}{{#vendorExtensions.x-has-java-params}}, {{/vendorExtensions.x-has-java-params}}holder{{/vendorExtensions.x-has-delegator-holder}}{{{vendorExtensions.x-has-auth}}}{{#authMethods}}securityContext{{/authMethods}});
     }
   {{/operation}}
   }
