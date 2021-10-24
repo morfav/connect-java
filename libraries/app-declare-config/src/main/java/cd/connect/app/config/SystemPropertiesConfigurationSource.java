@@ -18,7 +18,7 @@ public class SystemPropertiesConfigurationSource implements ConfigurationSource 
 	public void apply(net.stickycode.configuration.ConfigurationKey configurationKey, ResolvedConfiguration resolvedConfiguration) {
 		final String key = configurationKey.join(".").get(0);
 
-		final String value = System.getProperty(key);
+		final String value = System.getProperty(key, System.getenv(key));
 
 		if (value != null) {
 			resolvedConfiguration.add(new ConfigurationValue() {
