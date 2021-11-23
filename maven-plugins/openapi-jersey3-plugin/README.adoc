@@ -6,11 +6,11 @@ Converts openapi yaml or json files into JAX-RS apis based on Jersey2
 
 The current authors of this repository are:
 
-- _Irina Southwell (nee Капрельянц Ирина)_, Senior Software Engineer (https://www.linkedin.com/in/irina-southwell-9727a422/)
 - _Richard Vowles_, Software Developer (https://www.linkedin.com/in/richard-vowles-72035193/)
 
 == changes
 
+* 7.9: Support for where the delegate holder is in a different package. Sorting out Guava 26 issue.
 * 7.8: Fixes to the x-package support (a model with x-package can change the actual package it gets deployed into
 supporting merging common models in and placing them in common locations). Support for Kotlin Nullable and Non-Nullable
 annotations.
