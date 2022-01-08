@@ -250,6 +250,20 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 
 		List<CodegenOperation> codegenOperations = getCodegenOperations(objs);
 
+		// check if the imports of the APIs have classes that have changed their package names
+		// and if so, replace them
+		List<Map<String, String>> imports = (List<Map<String, String>>)objs.get("imports");
+		for (Map<String, String> anImport : imports) {
+			if (anImport.containsKey("import") && anImport.containsKey("classname")) {
+				String clazzName = anImport.get("classname");
+				final CodegenModel codegenModel = packageOverrideModelNames.get(clazzName);
+				if (codegenModel != null) {
+					anImport.put("import", codegenModel.getVendorExtensions().get("x-package") +
+						"." + codegenModel.getClassname());
+				}
+			}
+		}
+
 		// we need to be able to prevent voracious common-pathing if APIs are scattered because Jersey
 		// can't find URLs that have the same common path offset with the @Path annotation at the top of
 		// the file
@@ -390,10 +404,12 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 
 			// now walk through all the imports and re-write them
 			List<Map<String, String>> importStatements = (List<Map<String, String>>)info.get("imports");
+			final String prefix = modelPackage();
+
 			importStatements.forEach(statement -> {
 				String iStatement = statement.get("import");
-				if (iStatement != null && iStatement.startsWith(modelPackage())) {
-					String statementModelName = iStatement.substring(modelPackage().length()+1);
+				if (iStatement != null && iStatement.startsWith(prefix)) {
+					String statementModelName = iStatement.substring(prefix.length() + 1);
 					if (packageOverrideModelNames.containsKey(statementModelName)) {
 						statement.put("import", packageOverrideModelNames
 							.get(statementModelName).getVendorExtensions().get("x-package").toString() + "." + statementModelName);
@@ -404,6 +420,8 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 
 		return newObjs;
 	}
+
+
 
 	@SuppressWarnings("unchecked")
 	@Override
