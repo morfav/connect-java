@@ -3,18 +3,28 @@ package {{package}};
 import cd.connect.openapi.support.ApiClient;
 import cd.connect.openapi.support.ApiResponse;
 import cd.connect.openapi.support.Pair;
-import jakarta.ws.rs.BadRequestException;
 
-import jakarta.ws.rs.core.GenericType;
 import java.io.InputStream;
 {{^noFormData}}
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 {{/noFormData}}
+{{#jersey3}}
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.*;
+{{/jersey3}}
+{{#jersey2}}
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.*;
+{{/jersey2}}
 
 {{#imports}}import {{import}};
 {{/imports}}

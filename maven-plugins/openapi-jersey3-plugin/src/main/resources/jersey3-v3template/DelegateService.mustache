@@ -3,13 +3,20 @@ package {{package}};
 import cd.connect.openapi.support.ApiClient;
 import cd.connect.openapi.support.ApiResponse;
 import cd.connect.openapi.support.Pair;
-import jakarta.ws.rs.BadRequestException;
-
-import jakarta.ws.rs.core.GenericType;
 import java.io.InputStream;
 
+{{#jersey3}}
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
+{{/jersey3}}
+{{#jersey2}}
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+{{/jersey2}}
 
 {{#imports}}import {{import}};
 {{/imports}}

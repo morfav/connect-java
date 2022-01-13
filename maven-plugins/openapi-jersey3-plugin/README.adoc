@@ -10,6 +10,10 @@ The current authors of this repository are:
 
 == changes
 
+* 7.11: Adds support for javax imports instead of jakarta ones as the jersey2 plugin is now very far behind
+in terms of capability. Specifying an additional property of `jersey2` will make it generate `javax` prefixes
+instead of `jakarta` ones.
+* 7.10: Cleans up support for cross package export of source, `x-package` now works reliably
 * 7.9: Support for where the delegate holder is in a different package. Sorting out Guava 26 issue.
 * 7.8: Fixes to the x-package support (a model with x-package can change the actual package it gets deployed into
 supporting merging common models in and placing them in common locations). Support for Kotlin Nullable and Non-Nullable

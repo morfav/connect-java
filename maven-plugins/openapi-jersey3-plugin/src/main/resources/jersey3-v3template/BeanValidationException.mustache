@@ -2,8 +2,10 @@ package {{invokerPackage}};
 
 import java.util.Set;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ValidationException;
+{{#jersey3}}import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ValidationException;{{/jersey3}}
+{{#jersey2}}import javax.validation.ConstraintViolation;
+import javax.validation.ValidationException;{{/jersey2}}
 
 public class BeanValidationException extends ValidationException {
     /**

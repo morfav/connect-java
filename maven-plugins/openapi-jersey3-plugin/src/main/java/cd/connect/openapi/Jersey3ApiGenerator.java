@@ -110,6 +110,10 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 			additionalProperties.put(SERVICE_DEFAULT_URL, openAPI.getServers().get(0).getUrl());
 		}
 
+		if (!additionalProperties.containsKey("jersey2")) {
+			additionalProperties.put("jersey3", "true");
+		}
+
 		if (additionalProperties.containsKey(PREFIX_ALL_PATHS_USING_GET)) {
 			String getPath = additionalProperties.get(PREFIX_ALL_PATHS_USING_GET).toString();
 			PathItem parentPath = openAPI.getPaths().get(getPath);

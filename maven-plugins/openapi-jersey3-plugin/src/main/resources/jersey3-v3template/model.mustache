@@ -16,11 +16,22 @@ import java.io.Serializable;
 {{/serializableModel}}
 import com.fasterxml.jackson.annotation.*;
 {{#withXml}}
+{{#jersey3}}
 import jakarta.xml.bind.annotation.*;
+{{/jersey3}}
+{{#jersey2}}
+import javax.xml.bind.annotation.*;
+{{/jersey2}}
 {{/withXml}}
 {{#useBeanValidation}}
+	{{#jersey3}}
 import jakarta.validation.constraints.*;
 import jakarta.validation.Valid;
+{{/jersey3}}
+{{#jersey2}}
+import javax.validation.constraints.*;
+import javax.validation.Valid;
+{{/jersey2}}
 {{/useBeanValidation}}
 {{#models}}
 {{#model}}

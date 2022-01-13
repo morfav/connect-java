@@ -7,13 +7,20 @@ import cd.connect.openapi.support.ApiResponse;
 import {{package}}.{{classname}};
 import {{package}}.{{classname}}Client;
 import cd.connect.openapi.support.Pair;
-import jakarta.ws.rs.BadRequestException;
 
+{{#jersey3}}
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.*;
 import jakarta.validation.constraints.*;
 import jakarta.validation.Valid;
+{{/jersey3}}{{#jersey2}}
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.*;
+import javax.validation.constraints.*;
+import javax.validation.Valid;
+{{/jersey2}}
 
 {{#imports}}import {{import}};
 {{/imports}}
