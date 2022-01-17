@@ -81,9 +81,9 @@ import javax.ws.rs.*;
     {{#allParams}}
       * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}
     {{/allParams}}
-    {{#returnType}}
+    {{#returnType}}{{^vendorExtensions.x-void-return}}
       * @return {{returnType}}
-    {{/returnType}}
+    {{/vendorExtensions.x-void-return}}{{/returnType}}
     {{#isDeprecated}}
       * @deprecated
     {{/isDeprecated}}

@@ -304,6 +304,10 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 				op.returnBaseType = "Response";
 			}
 
+			if ("void".equals(op.returnType)) {
+				op.vendorExtensions.put("x-void-return", Boolean.TRUE);
+			}
+
 			if (op.produces != null) {
 				int lastProducesHasNext = op.produces.size();
 				for (Map<String, String> produce : op.produces) {

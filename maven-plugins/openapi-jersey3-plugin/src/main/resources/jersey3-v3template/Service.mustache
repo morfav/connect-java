@@ -57,9 +57,9 @@ public interface {{classname}} {
    {{#allParams}}
    * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}
    {{/allParams}}
-   {{#returnType}}
-   * @return {{returnType}}
-   {{/returnType}}
+   {{#returnType}}{{^vendorExtensions.x-void-return}}
+	   * @return {{returnType}}
+   {{/vendorExtensions.x-void-return}}{{/returnType}}
    {{#isDeprecated}}
    * @deprecated
    {{/isDeprecated}}
