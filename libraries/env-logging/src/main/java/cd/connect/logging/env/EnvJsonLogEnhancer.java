@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -15,10 +16,31 @@ import java.util.stream.Collectors;
  * Created by Richard Vowles on 9/01/18.
  */
 public class EnvJsonLogEnhancer implements JsonLogEnhancer {
-	protected Map<String, String> converted = new ConcurrentHashMap<>();
+	protected Map<String, Object> converted = new ConcurrentHashMap<>();
 	final protected static String CONFIG_KEY = "connect.logging.environment";
 	protected static EnvJsonLogEnhancer self;
 	final private static Logger log = LoggerFactory.getLogger(EnvJsonLogEnhancer.class);
+
+	static class EnvFlattener {
+		Map<String, EnvFlattener> envs = new HashMap<>();
+		Map<String, String> plain = new HashMap<>();
+
+		public void put(String k, String val) {
+			if (k.contains(".")) {
+				int pos = k.indexOf(".");
+				EnvFlattener flat = envs.computeIfAbsent(k.substring(0, pos), key -> new EnvFlattener());
+				flat.put(k.substring(pos + 1), val);
+			} else {
+				plain.put(k, val);
+			}
+		}
+
+		public Map<String, Object> flatten() {
+			Map<String, Object> data = new HashMap<>(plain);
+			envs.forEach((k,v) -> data.put(k, v.flatten()));
+			return data;
+		}
+	}
 
   /**
    * The difficulty here is that the logging gets initialized _very_ early. So you need to choose something
@@ -29,9 +51,11 @@ public class EnvJsonLogEnhancer implements JsonLogEnhancer {
    */
 	public static void initialize() {
 	  if (self != null) {
-      String envs = System.getProperty(CONFIG_KEY);
+      String envs = System.getProperty(CONFIG_KEY, System.getenv(CONFIG_KEY));
       if (envs != null && self.converted.size() == 0) { // don't init twice
+
         StringTokenizer st = new StringTokenizer(envs, ",");
+	      EnvFlattener envFlattener = new EnvFlattener();
         List<String> environmentVariables = new ArrayList<>();
         while (st.hasMoreTokens()) {
           String[] val = st.nextToken().split("[:=]");
@@ -40,15 +64,17 @@ public class EnvJsonLogEnhancer implements JsonLogEnhancer {
             if (e != null) {
               e = e.trim();
               if (e.length() > 0) {
-                self.converted.put(val[1], e);
+                envFlattener.put(val[1], e);
                 environmentVariables.add(val[1]);
               }
             }
           }
         }
 
+				self.converted.putAll(envFlattener.flatten());
+
         if (environmentVariables.size() > 0) {
-        	log.info("Environment logger created with {} variables", environmentVariables.stream().collect(Collectors.joining(", ")));
+        	log.info("Environment logger created with {} variables", String.join(", ", environmentVariables));
         } else {
         	log.info("No environmental loggers detected, probably misconfigured.");
         }

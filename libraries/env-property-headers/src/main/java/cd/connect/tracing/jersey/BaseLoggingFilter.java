@@ -24,7 +24,7 @@ import java.util.StringTokenizer;
 abstract public class BaseLoggingFilter implements ContainerRequestFilter, ClientRequestFilter, ContainerResponseFilter {
 	protected List<String> allHeaderNames = new ArrayList<>();
 	protected Map<String, String> headerLogNameMap = new HashMap<>();
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	// strip x-, replace - with .
 	protected String headerNameToLogName(String name) {

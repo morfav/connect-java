@@ -15,6 +15,7 @@
 		<module>app-declare-config</module>
 		<module>openapi-jersey2-support</module>
 		<module>jersey-grizzly</module>
+		<module>log4j</module>
 		<module>
 			env-logging
 		</module>

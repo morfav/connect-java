@@ -40,17 +40,21 @@
 			<groupId>cd.connect.composites.java</groupId>
 			<artifactId>connect-composite-groovy</artifactId>
 			<version>[1.1, 2)</version>
+			<scope>provided</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>cd.connect.composites.java</groupId>
 			<artifactId>connect-composite-log4j2</artifactId>
 			<version>[1.1, 2)</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>cd.connect.common</groupId>
 			<artifactId>connect-java-logging</artifactId>
 			<version>[1.1, 2)</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>

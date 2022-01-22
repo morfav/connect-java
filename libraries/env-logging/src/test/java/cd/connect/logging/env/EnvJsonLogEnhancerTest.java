@@ -32,6 +32,8 @@ public class EnvJsonLogEnhancerTest {
 
 		assertThat(log.size()).isEqualTo(2);
 		assertThat(log.get("freud")).isEqualTo("sausage");
-		assertThat(log.get("kubernetes.wilbur")).isEqualTo("belieber");
+		Map<String, Object> hm = new HashMap<>();
+		hm.put("wilbur", "belieber");
+		assertThat(log.get("kubernetes")).isEqualTo(hm);
 	}
 }
