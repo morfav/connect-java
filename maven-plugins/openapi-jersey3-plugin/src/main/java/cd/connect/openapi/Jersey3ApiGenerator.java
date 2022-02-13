@@ -410,6 +410,7 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 				}
 			});
 
+			Set<String> extraImports = checkForMapKeyOverride(modelName, newObjs);
 			// now walk through all the imports and re-write them
 			List<Map<String, String>> importStatements = (List<Map<String, String>>)info.get("imports");
 			final String prefix = modelPackage();
@@ -419,16 +420,99 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 				if (iStatement != null && iStatement.startsWith(prefix)) {
 					String statementModelName = iStatement.substring(prefix.length() + 1);
 					if (packageOverrideModelNames.containsKey(statementModelName)) {
-						statement.put("import", packageOverrideModelNames
-							.get(statementModelName).getVendorExtensions().get("x-package").toString() + "." + statementModelName);
+						final String newImport = packageOverrideModelNames
+							.get(statementModelName).getVendorExtensions().get("x-package").toString() + "." + statementModelName;
+						extraImports.remove(newImport); // no dupes - remove new package import
+						statement.put("import", newImport);
+					} else {
+						extraImports.remove(iStatement);  // no dupes
 					}
+				} else if (iStatement != null) {
+					extraImports.remove(iStatement);  // no dupes
 				}
 			});
+
+			extraImports.forEach(i -> {
+				Map<String, String> importMap = new HashMap<>();
+				importMap.put("import", i);
+				importStatements.add(importMap);
+			});
+
 		});
 
 		return newObjs;
 	}
 
+	private static class XPropertyRef {
+		CodegenModel model;
+		String importPath;
+
+		public XPropertyRef(CodegenModel model, String importPath) {
+			this.model = model;
+			this.importPath = importPath;
+		}
+	}
+
+	private Set<String> checkForMapKeyOverride(String modelName, Map<String, Object> modelMap) {
+		Set<String> extraImports = new HashSet<>();
+
+		Map<String, Object> info = (Map<String, Object>)modelMap.get(modelName);
+		List<Map<String, Object>> models = (List<Map<String, Object>>) info.get("models");
+		if (models.size() == 1) {
+			CodegenModel model = (CodegenModel) models.get(0).get("model");
+			if (model != null) {
+				model.allVars.forEach(p -> resetMapOverrideKey(modelMap, extraImports, p));
+				model.vars.forEach(p -> resetMapOverrideKey(modelMap, extraImports, p));
+			}
+		}
+
+		return extraImports;
+	}
+
+	private void resetMapOverrideKey(Map<String, Object> modelMap, Set<String> extraImports, CodegenProperty p) {
+		if (p.isMap) {
+			String keyType = "String";
+			if (!p.getVendorExtensions().containsKey("x-property-ref")) {
+				p.getVendorExtensions().put("x-property-ref", keyType);
+			} else {
+				String ref = p.getVendorExtensions().get("x-property-ref").toString();
+				XPropertyRef refName = ref.startsWith("#/components") ? extractModelFromRef(modelMap, ref) :
+					extractModelFromShortName(modelMap, ref);
+				if (refName != null) {
+					extraImports.add(refName.importPath);
+					keyType = refName.model.classname;
+					p.getVendorExtensions().put("x-property-ref", keyType);
+					p.dataType = p.dataType.replace("<String,", "<" + keyType + ",");
+					p.datatypeWithEnum = p.datatypeWithEnum.replace("<String,", "<" + keyType + ",");
+				}
+			}
+		}
+	}
+
+	private XPropertyRef extractModelFromShortName(Map<String, Object> info, String ref) {
+		Map<String, Map<String, Object>> modelInfo = (Map<String, Map<String, Object>>) info.get(ref);
+
+		if (modelInfo != null) {
+			List<Map<String, Object>> models = (List<Map<String, Object>>) modelInfo.get("models");
+			if (models != null && models.size() == 1) {
+				CodegenModel model = (CodegenModel) models.get(0).get("model");
+				String importPath = (String) models.get(0).get("importPath");
+				if (importPath != null && model != null) {
+					return new XPropertyRef(model, importPath);
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * here we have to cut off the stuff and then return the model from the short name
+	 */
+	private XPropertyRef extractModelFromRef(Map<String, Object> info, String ref) {
+		String shortName = ref.substring(ref.lastIndexOf("/")+1);
+		return extractModelFromShortName(info, shortName);
+	}
 
 
 	@SuppressWarnings("unchecked")

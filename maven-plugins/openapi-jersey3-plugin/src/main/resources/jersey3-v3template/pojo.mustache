@@ -104,7 +104,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#parcela
   {{/isArray}}
   {{#isMap}}
 
-  public {{classname}} put{{nameInCamelCase}}Item(String key, {{{items.datatypeWithEnum}}} {{name}}Item) {
+  public {{classname}} put{{nameInCamelCase}}Item({{vendorExtensions.x-property-ref}} key, {{{items.datatypeWithEnum}}} {{name}}Item) {
     {{^required}}
     if (this.{{name}} == null) {
       this.{{name}} = {{{defaultValue}}};

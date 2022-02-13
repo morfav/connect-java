@@ -410,6 +410,7 @@ components:
           type: string
         readings:
           type: object
+          x-property-ref: "#/components/schemas/SimpleEnum"
           additionalProperties:
             type: number
             format: decimal
@@ -458,6 +459,12 @@ components:
       description: "can be anything, no properties"
     SecondJsonType:
       description: "can be anything, no properties"
+    SimpleEnum:
+      type: string
+      enum:
+        - cumberlands
+        - sage_and_onion
+        - sweet_pickle
     TimeType:
       type: string
       format: date-time
