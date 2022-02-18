@@ -4,7 +4,7 @@
 
 	<groupId>cd.connect.maven</groupId>
 	<artifactId>merge-yaml-plugin</artifactId>
-	<version>1.4</version>
+	<version>1.5-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
 	<name>merge-yaml-plugin</name>
 
@@ -33,7 +33,7 @@
 		<connection>scm:git:git@github.com:clearpointnz/connect-java.git</connection>
 		<developerConnection>scm:git:git@github.com:clearpointnz/connect-java.git</developerConnection>
 		<url>git@github.com:clearpointnz/connect-java.git</url>
-		<tag>merge-yaml-plugin-1.4</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<properties>
