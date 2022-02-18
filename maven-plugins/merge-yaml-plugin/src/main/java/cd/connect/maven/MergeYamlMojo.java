@@ -34,6 +34,8 @@ import java.util.Map;
 	requiresDependencyResolution = ResolutionScope.NONE, threadSafe = true)
 public class MergeYamlMojo extends AbstractMojo {
 	private static final DefaultMustacheFactory DEFAULT_MUSTACHE_FACTORY = new DefaultMustacheFactory();
+	
+	enum VarSubstitution { NONE, MUSTACHE }
 
 	@Parameter(name = "finalYaml", required = true, property = "merge-yaml.finalYaml")
 	String finalYaml;
@@ -43,6 +45,9 @@ public class MergeYamlMojo extends AbstractMojo {
 
 	@Parameter(name = "flowStyle", property = "merge-yaml.flowStyle", defaultValue = "AUTO")
 	DumperOptions.FlowStyle flowStyle;
+	
+	@Parameter(name = "varSubstitution", property = "merge-yaml.varSubstitution", defaultValue = "MUSTACHE")
+	String varSubstitution;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -75,12 +80,23 @@ public class MergeYamlMojo extends AbstractMojo {
 				in = new FileInputStream(file);
 				final String entireFile = IOUtils.toString(in, Charset.defaultCharset());
 
+				String substitutedFile;
 				// substitute variables
-				final StringWriter writer = new StringWriter(entireFile.length() + 10);
-				DEFAULT_MUSTACHE_FACTORY.compile(new StringReader(entireFile), "mergeyml_"+System.currentTimeMillis()).execute(writer, scope);
+				switch(VarSubstitution.valueOf(varSubstitution)) {
+					case MUSTACHE:
+						final StringWriter writer = new StringWriter(entireFile.length() + 10);
+						DEFAULT_MUSTACHE_FACTORY.compile(new StringReader(entireFile), "mergeyml_"+System.currentTimeMillis()).execute(writer, scope);
+						substitutedFile = writer.toString();
+						break;
+					
+					default:
+						// No substitution : take file as-is.
+						substitutedFile = entireFile;
+						break;
+				}
 
 				// load the YML file
-				final Map<String, Object> yamlContents = (Map<String, Object>) yaml.load(writer.toString());
+				final Map<String, Object> yamlContents = (Map<String, Object>) yaml.load(substitutedFile);
 
 				// merge into results map
 				merge_internal(mergedResult, yamlContents);
