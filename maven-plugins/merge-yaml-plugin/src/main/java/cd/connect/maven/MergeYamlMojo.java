@@ -34,7 +34,7 @@ import java.util.Map;
 	requiresDependencyResolution = ResolutionScope.NONE, threadSafe = true)
 public class MergeYamlMojo extends AbstractMojo {
 	private static final DefaultMustacheFactory DEFAULT_MUSTACHE_FACTORY = new DefaultMustacheFactory();
-	
+
 	enum VarSubstitution { NONE, MUSTACHE }
 
 	@Parameter(name = "finalYaml", required = true, property = "merge-yaml.finalYaml")
@@ -45,7 +45,7 @@ public class MergeYamlMojo extends AbstractMojo {
 
 	@Parameter(name = "flowStyle", property = "merge-yaml.flowStyle", defaultValue = "AUTO")
 	DumperOptions.FlowStyle flowStyle;
-	
+
 	@Parameter(name = "varSubstitution", property = "merge-yaml.varSubstitution", defaultValue = "MUSTACHE")
 	String varSubstitution;
 
@@ -64,7 +64,7 @@ public class MergeYamlMojo extends AbstractMojo {
 
 			FileUtils.write(new File(finalYaml), output, Charset.defaultCharset());
 
-			getLog().info("Written " + finalYaml);
+			getLog().debug("Written " + finalYaml);
 		} catch (IOException e) {
 			throw new MojoFailureException("Unable to merge yaml", e);
 		}
@@ -88,7 +88,7 @@ public class MergeYamlMojo extends AbstractMojo {
 						DEFAULT_MUSTACHE_FACTORY.compile(new StringReader(entireFile), "mergeyml_"+System.currentTimeMillis()).execute(writer, scope);
 						substitutedFile = writer.toString();
 						break;
-					
+
 					default:
 						// No substitution : take file as-is.
 						substitutedFile = entireFile;
