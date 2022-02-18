@@ -1,0 +1,2 @@
+baz:
+  bing: "This injects {{ $.Values.aRandom.helm.variable }} in text."
