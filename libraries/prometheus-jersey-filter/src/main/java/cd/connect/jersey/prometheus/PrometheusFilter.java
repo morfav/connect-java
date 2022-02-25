@@ -107,7 +107,7 @@ public class PrometheusFilter implements ContainerRequestFilter, ContainerRespon
       name = prefix + "_" + name;
     }
 
-    final String help = path;
+    final String help = path.isEmpty() ? "Request for root" : path;
 
     tracker = histogramMap.computeIfAbsent(name, nm -> Histogram.build().name(nm).help(help).register());
   }
