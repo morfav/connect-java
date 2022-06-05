@@ -14,17 +14,22 @@ public class SystemPropertiesConfigurationSource implements ConfigurationSource 
     log.info("Sticky Configuration is ready to read from System Properties.");
   }
 
+  private String getKey(String name) {
+    String val = System.getenv(name);
+
+    return val == null ? System.getProperty(name) : val;
+  }
   @Override
 	public void apply(net.stickycode.configuration.ConfigurationKey configurationKey, ResolvedConfiguration resolvedConfiguration) {
 		final String key = configurationKey.join(".").get(0);
 
-		final String value = System.getProperty(key, System.getenv(key));
+		final String value =  getKey(key);
 
 		if (value != null) {
 			resolvedConfiguration.add(new ConfigurationValue() {
 				@Override
 				public String get() {
-					String newValue = System.getProperty(key);
+					String newValue = getKey(key);
 
           return newValue == null ? value : newValue;
 				}

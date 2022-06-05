@@ -358,6 +358,7 @@ components:
         - PENDING
         - ARCHIVING
     "com.bluetrainsoftware.AddProps1":
+      x-package: com.mypackage
       properties:
         extra:
           type: object
@@ -405,15 +406,21 @@ components:
               text:
                 type: string
     AddProps3:
+      x-package: com.mypackage
       properties:
         discrim:
           type: string
-        readings:
+        readings2:
           type: object
           x-property-ref: "#/components/schemas/SimpleEnum"
           additionalProperties:
             type: number
             format: decimal
+        readings:
+          type: object
+          x-property-ref: "#/components/schemas/SimpleEnum"
+          additionalProperties:
+            $ref: "#/components/schemas/com.bluetrainsoftware.AddProps1"
         extra:
           type: object
           additionalProperties:

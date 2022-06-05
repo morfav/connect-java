@@ -18,7 +18,7 @@
     <module>composites/connect-composite-prometheus</module>
     <module>composites/connect-composite-test</module>
 	  <module>composites/connect-composite-jersey-grizzly</module>
-	  <module>libraries/jersey-common</module>
+<!--	  <module>libraries/jersey-common</module>-->
 	  <module>libraries/app-lifecycle</module>
 	  <module>libraries/app-declare-config</module>
 	  <module>libraries/openapi-jersey3-support</module>
@@ -30,6 +30,7 @@
 	  <module>libraries/prometheus-jersey-filter</module>
 	  <module>libraries/log4j</module>
 	  <module>maven-plugins/openapi-jersey3-plugin</module>
+	  <module>maven-plugins/docker-manifest-collectosaur-plugin</module>
   </modules>
 
   <build>

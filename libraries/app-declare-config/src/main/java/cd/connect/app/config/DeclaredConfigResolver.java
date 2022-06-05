@@ -36,6 +36,7 @@ public class DeclaredConfigResolver {
 
     Set<ConfigurationSource> configSources = new LinkedHashSet<>();
 
+    configSources.add(new ThreadLocalConfigurationSource());
     configSources.add(new SystemPropertiesConfigurationSource());
     configSources.add(new EnvironmentConfigurationSource());
 
