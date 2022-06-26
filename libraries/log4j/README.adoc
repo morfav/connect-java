@@ -13,11 +13,12 @@ The package is `*cd.connect.logging.ConnectJsonLayout*` and it is designed to lo
  as all distributed loggers are.
 
 [source:xml]
- <Configuration monitorInterval="30" verbose="true" packages="cd.connect.logging.ConnectJsonLayout">
+ <Configuration monitorInterval="30" verbose="true" packages="cd.connect.logging">
  
  	<Appenders>
  		<Console name="Console" target="SYSTEM_OUT">
- 			<ConnectJsonLayout></ConnectJsonLayout>
+ 			<ConnectJsonLayout/>
+            <DisableLogsFilter/>    
  		</Console>
  	</Appenders>
  
@@ -45,21 +46,15 @@ The package is `*cd.connect.logging.ConnectJsonLayout*` and it is designed to lo
 
 
 == Installation Instructions
-How to install
 
-== Build Status
-TravisCI link or something else - delete if not needed
+All of the dependencies of this library (Groovy and Log4j2) are `provided` scope, so you will need
+to provide your own dependency versions. 
 
-== Documentation
-There is no further specific documentation for this.
+== Disable Logs Filter
 
-The main documentation for link:http://connect.cd[Connect] can be found at: link:http://docs.connect.cd[docs.connect.cd]
-
-'''
-image::http://website.clearpoint.co.nz/connect/connect-logo-on-white-border.png[]
-link:http://connect.cd[Connect] is a Continuous Delivery Platform that gathers best practice approaches for deploying working software into the cloud with confidence.
-
-The main documentation for link:http://connect.cd[Connect] can be found at link:http://docs.connect.cd[docs.connect.cd]
-
-Any queries on the link:http://connect.cd[Connect] platform can be sent to: connect@clearpoint.co.nz
+If you add `connect.disable-logs` to your MDC, then it will disable all logs from then on until the 
+entry is removed. We recommend using putCloseable so it gets removed from around the context. This
+can be useful around things like healthchecks where they do database work and you don't care about
+what the logs are saying in the database and generally they are too generic. Regex is a very hard
+way to go about killing those kinds of logs.
 
