@@ -25,6 +25,9 @@ import javax.inject.Singleton;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.GenericType;
 {{/jersey2}}
+{{#prometheus}}
+import cd.connect.jersey.prometheus.Prometheus;
+{{/prometheus}}
 
 {{#imports}}import {{import}};
 {{/imports}}
@@ -69,6 +72,7 @@ import javax.ws.rs.core.GenericType;
     {{#isDeprecated}}
       @Deprecated
     {{/isDeprecated}}
+    {{#prometheus}}@Prometheus(name = "{{operationId}}", help="{{#summary}}{{.}}{{/summary}}{{^summary}}{{notes}}{{/summary}}"){{/prometheus}}
     {{#vendorExtensions.statusCode}}@ReturnStatus(code={{vendorExtensions.statusCode}}){{/vendorExtensions.statusCode}}
     {{#vendorExtensions.x-java-annotations}}{{{.}}}{{/vendorExtensions.x-java-annotations}}
     public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}Response {{/returnType}}{{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}{{#authMethods}}{{#hasParams}}, {{/hasParams}}SecurityContext securityContext{{/authMethods}}) {

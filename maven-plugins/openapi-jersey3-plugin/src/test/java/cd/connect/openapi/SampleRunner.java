@@ -13,6 +13,7 @@ public class SampleRunner {
       "--input-spec", location,
       "--generator-name", "jersey3-api",
       "--additional-properties", "server-security",
+		  "--additional-properties", "server-delegate",
       "--additional-properties", "x-no-copy",
 //      "--api-package", "api",
 //      "--model-package", "model",

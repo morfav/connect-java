@@ -361,10 +361,16 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 					op.vendorExtensions.put("statusCode", resp.code);
 				});
 
-
-			if (op.responses.stream().noneMatch(r -> r.is2xx)) {
+			if (op.responses.stream().noneMatch(r -> r.is2xx) ) {
 				op.vendorExtensions.remove("x-java-is-response-void");
 				op.returnType = null; // force it to be Response object
+			}
+
+			if ("void".equals(op.returnType) && !op.vendorExtensions.containsKey("statusCode")) {
+				// if this is returning void, it will in fact return a 204, so lets find the first 2xx code and tag this method
+				op.responses.stream().filter(r -> r.is2xx && "void".equals(r.dataType)).findFirst().ifPresent(resp -> {
+					op.vendorExtensions.put("statusCode", resp.code);
+				});
 			}
 		}
 

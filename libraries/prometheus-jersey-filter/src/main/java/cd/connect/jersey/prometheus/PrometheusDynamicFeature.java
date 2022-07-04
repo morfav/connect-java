@@ -6,7 +6,7 @@ import jakarta.ws.rs.core.FeatureContext;
 import jakarta.ws.rs.ext.Provider;
 
 /**
- * @author Richard Vowles - https://plus.google.com/+RichardVowles
+ * @author Richard Vowles
  */
 @Provider
 public class PrometheusDynamicFeature implements DynamicFeature {
@@ -17,13 +17,26 @@ public class PrometheusDynamicFeature implements DynamicFeature {
     this(profileAll());
   }
 
+	private static String configured(String name) {
+		String val = System.getenv(name);
+		if (val == null) {
+			val = System.getenv(name.toUpperCase().replace(".", "_"));
+			if (val == null) {
+				val = System.getProperty(name);
+			}
+		}
+
+		return val;
+	}
+
   private static boolean profileAll() {
-    String val = System.getProperty("prometheus.jersey.all", System.getenv("PROMETHEUS_JERSEY_ALL"));
-    return val == null ? true : Boolean.valueOf(val);
+		String val = configured("prometheus.jersey.all");
+
+	  return val == null || Boolean.parseBoolean(val);
   }
 
   public PrometheusDynamicFeature(boolean profileAll) {
-    this.prefix = System.getProperty("prometheus.jersey.prefix", System.getenv("PROMETHEUS_JERSEY_PREFIX") );
+    this.prefix = configured("prometheus.jersey.prefix");
 
     GlobalJerseyMetrics.init(prefix);
 

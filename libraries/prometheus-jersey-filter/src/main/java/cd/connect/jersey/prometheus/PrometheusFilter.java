@@ -2,9 +2,6 @@ package cd.connect.jersey.prometheus;
 
 import io.prometheus.client.Histogram;
 import jakarta.annotation.Priority;
-import org.glassfish.jersey.server.monitoring.RequestEvent;
-import org.glassfish.jersey.server.monitoring.RequestEventListener;
-
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
@@ -12,21 +9,19 @@ import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.MultivaluedMap;
-import java.io.IOException;
-import java.lang.reflect.Method;
+
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static cd.connect.jersey.prometheus.GlobalJerseyMetrics.requests;
 import static cd.connect.jersey.prometheus.GlobalJerseyMetrics.response_2xx;
 import static cd.connect.jersey.prometheus.GlobalJerseyMetrics.response_3xx;
 import static cd.connect.jersey.prometheus.GlobalJerseyMetrics.response_4xx;
 import static cd.connect.jersey.prometheus.GlobalJerseyMetrics.response_5xx;
 
 /**
- * @author Richard Vowles - https://plus.google.com/+RichardVowles
+ * @author Richard Vowles
  */
 @Priority(Priorities.HEADER_DECORATOR)
 public class PrometheusFilter implements ContainerRequestFilter, ContainerResponseFilter {
@@ -35,10 +30,43 @@ public class PrometheusFilter implements ContainerRequestFilter, ContainerRespon
 	private static final String TRACKER_TIMER = "prometheus.timer";
 
   protected final ResourceInfo resourceInfo;
-  protected String prefix = "";
+  protected String prefix;
   private final Prometheus annotation;
-  private Histogram tracker;
-  private static Map<String, Histogram> histogramMap = new ConcurrentHashMap<>();
+  private CombinationDumpling tracker;
+  private static final Map<String, CombinationDumpling> metrics = new ConcurrentHashMap<>();
+
+
+	private static class CombinationDumpling {
+		public Histogram histogram;
+
+		public static CombinationDumpling findOrCreate(Prometheus annotation) {
+			return findOrCreate(annotation.name(), annotation.help());
+		}
+
+		public static CombinationDumpling findOrCreate(String name, String help) {
+			return metrics.computeIfAbsent(name, k -> new CombinationDumpling(name, help));
+		}
+
+		public CombinationDumpling(String name, String help) {
+			histogram = Histogram.build(name+"_histogram", help + " Histogram").register();
+		}
+
+		LiteDumpling startTimer() {
+			return new LiteDumpling(histogram.startTimer());
+		}
+	}
+
+	public static class LiteDumpling {
+		private final Histogram.Timer hTimer;
+
+		public LiteDumpling(Histogram.Timer hTimer) {
+			this.hTimer = hTimer;
+		}
+
+		public void observe() {
+			hTimer.observeDuration();
+		}
+	}
 
   /**
    * Registers a filter specifically for the defined method.
@@ -62,19 +90,18 @@ public class PrometheusFilter implements ContainerRequestFilter, ContainerRespon
    */
   private void buildTimerFromAnnotation(Prometheus annotation) {
     if (annotation != null && annotation.help().length() > 0 && annotation.name().length() > 0) {
-      tracker = Histogram.build().name(annotation.name()).help(annotation.help()).register();
+      tracker = CombinationDumpling.findOrCreate(annotation);
     }
   }
 
   @Override
-  public void filter(ContainerRequestContext requestContext) throws IOException {
+  public void filter(ContainerRequestContext requestContext) {
 	  if (tracker == null) { // we only need to do this once
       buildTracker(requestContext);
     }
 
     if (tracker != null) {
-      Histogram.Timer timer = tracker.startTimer();
-      requestContext.setProperty(TRACKER_TIMER, timer);
+      requestContext.setProperty(TRACKER_TIMER, tracker.startTimer());
     }
   }
 
@@ -109,7 +136,7 @@ public class PrometheusFilter implements ContainerRequestFilter, ContainerRespon
 
     final String help = path.isEmpty() ? "Request for root" : path;
 
-    tracker = histogramMap.computeIfAbsent(name, nm -> Histogram.build().name(nm).help(help).register());
+    tracker = CombinationDumpling.findOrCreate(name, help);
   }
 
   /**
@@ -129,11 +156,11 @@ public class PrometheusFilter implements ContainerRequestFilter, ContainerRespon
   }
 
   @Override
-  public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
-    Histogram.Timer timer = Histogram.Timer.class.cast(requestContext.getProperty(TRACKER_TIMER));
+  public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
+	  LiteDumpling timer = (LiteDumpling) requestContext.getProperty(TRACKER_TIMER);
 
     if (timer != null) {
-      timer.observeDuration();
+      timer.observe();
     }
 
     if (responseContext.getStatus() >= 500) {
@@ -146,50 +173,4 @@ public class PrometheusFilter implements ContainerRequestFilter, ContainerRespon
       response_2xx.inc();
     }
   }
-
-  private static class PrometheusHistogramListener implements RequestEventListener {
-		private static ConcurrentHashMap<String, Histogram> histograms = new ConcurrentHashMap<>();
-		private static ConcurrentHashMap<Method, Method> ignored = new ConcurrentHashMap<>();
-		private Histogram.Timer timer;
-		private final String prefix;
-
-		private PrometheusHistogramListener(String prefix) {
-			this.prefix = prefix;
-		}
-
-		private void resourceStart(RequestEvent matched) {
-			Method method = matched.getUriInfo().getMatchedResourceMethod().getInvocable().getHandlingMethod();
-
-			if (ignored.get(method) != null) {
-				return; // seen it before, its ignored, lets get outta here
-			}
-
-			Prometheus instrument = method.getAnnotation(Prometheus.class);
-
-			if (instrument != null) {
-				Histogram tracker = histograms.get(instrument.name());
-
-				if (tracker == null) { // we don't know about it either way
-					tracker = Histogram.build().name(prefix + instrument.name()).help(instrument.help()).register();
-					histograms.put(instrument.name(), tracker);
-				}
-
-				timer = tracker.startTimer();
-				requests.inc();
-
-			} else {
-				ignored.put(method, method);
-			}
-		}
-
-		@Override
-		public void onEvent(RequestEvent matched) {
-			if (matched.getType() == RequestEvent.Type.RESOURCE_METHOD_START ) {
-				resourceStart(matched);
-			} else if (matched.getType() == RequestEvent.Type.RESOURCE_METHOD_FINISHED && timer != null) {
-				timer.observeDuration();
-				timer = null;
-			}
-		}
-	}
 }

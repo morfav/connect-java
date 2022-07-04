@@ -9,6 +9,9 @@ The current authors of this repository are:
 - _Richard Vowles_, Software Developer (https://www.linkedin.com/in/richard-vowles-72035193/)
 
 == changes
+* 7.15 - fixing issue with ReturnStatus code if returning no data and you want a 200 return. Added in support
+for additional property 'prometheus' to support the `@Prometheus` annotation from the `prometheus-jersey-filter` 4.1+
+if `prometheus=true` is set in your additional properties list.
 
 * 7.11: Adds support for javax imports instead of jakarta ones as the jersey2 plugin is now very far behind
 in terms of capability. Specifying an additional property of `jersey2` will make it generate `javax` prefixes

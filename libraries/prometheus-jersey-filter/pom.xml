@@ -4,7 +4,7 @@
 
 	<groupId>cd.connect.common</groupId>
 	<artifactId>connect-prometheus-jersey</artifactId>
-	<version>3.3-SNAPSHOT</version>
+	<version>4.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>Prometheus Jersey Annotation Support</name>
 

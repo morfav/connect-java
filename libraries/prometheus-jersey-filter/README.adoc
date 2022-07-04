@@ -5,15 +5,14 @@ This repository adds in tracking functionality via Prometheus to Jersey applicat
 supports Prometheus and _nothing else_. This is a deliberate decision because adding levels of configuration
 and indirection leads to poor performance, something we are trying to avoid by using Prometheus!
 
-By default this library will wrap all your JAX-RS runctions with Histogram timings and it will also track
+By default this library will wrap all your JAX-RS functions with Prometheus Summary and it will also track
 counters of 2xx, 3xx, 4xx and 5xx counters.
 
-The "all" is controlled by a system property (true/false) of `prometheus.jersey.all` or environment variable
-`PROMETHEUS_JERSEY_ALL`. You can also create an instance of the *Feature* and set it directly, along with the prefix.
+The "all" is controlled by a system property/environment variable (true/false) of `prometheus.jersey.all`.
+You can also create an instance of the *PrometheusFilter* and set it directly, along with the prefix.
 
 The _prefix_ allows you to prefix all of your metrics - allowing you to essentially group them. This is controlled
-by `prometheus.jersey.prefix` or environment variable `PROMETHEUS_JERSEY_PREFIX` (or again, create the instance yourself).
-
+by system property/environment variable `prometheus.jersey.prefix` (or again, create the instance yourself).
 
 The name of the metric is automatically generated from the method name (the class is behind a proxy, making it hard
 to get to) and the help is the declaration style of the API call - e.g. `/events/{guid}` instead of the actual guid.
@@ -35,10 +34,11 @@ register(PrometheusDynamicFeature.class);
 
 It is, of course, released in Apache Maven Central, so just add the dependency to your pom:
 
+[source,xml]
 ----
 <dependency>
-  <groupId>com.bluetrainsoftware</groupId>
-	<artifactId>prometheus-jersey</artifactId>
-  <version>2.1</version>
+	<groupId>cd.connect.common</groupId>
+	<artifactId>connect-prometheus-jersey</artifactId>
+    <version>4.1</version>
 </dependency>
 ----
