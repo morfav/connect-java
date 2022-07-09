@@ -1,6 +1,6 @@
 = connect-openapi-jersey3
 
-Converts openapi yaml or json files into JAX-RS apis based on Jersey2
+Converts openapi yaml or json files into JAX-RS apis based on Jersey 3 (`jakarta.`) and Jersey 2 (`javax.`)
 
 == authors
 
