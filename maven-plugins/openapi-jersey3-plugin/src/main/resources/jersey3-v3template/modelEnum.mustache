@@ -50,12 +50,12 @@ public enum {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum
 
   @JsonCreator
   public static {{#datatypeWithEnum}}{{{.}}}{{/datatypeWithEnum}}{{^datatypeWithEnum}}{{{classname}}}{{/datatypeWithEnum}} fromValue(String text) {
-    {{#useNullForUnknownEnumValue}}
+    {{^vendorExtensions.x-must-be-valid}}
 	  return fromValues.get(text);
-    {{/useNullForUnknownEnumValue}}{{^useNullForUnknownEnumValue}}
+    {{/vendorExtensions.x-must-be-valid}}{{#vendorExtensions.x-must-be-valid}}
 	{{{classname}}} val = fromValues.get(text);
 	  if (val != null) { return val; }
-    {{/useNullForUnknownEnumValue}}
 	  throw new IllegalArgumentException("Unexpected value '" + text + "'");
+{{/vendorExtensions.x-must-be-valid}}
   }
 }

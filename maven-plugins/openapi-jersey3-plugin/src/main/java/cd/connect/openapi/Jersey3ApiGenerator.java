@@ -19,6 +19,9 @@ import org.openapitools.codegen.CodegenParameter;
 import org.openapitools.codegen.CodegenProperty;
 import org.openapitools.codegen.SupportingFile;
 import org.openapitools.codegen.languages.AbstractJavaJAXRSServerCodegen;
+import org.openapitools.codegen.model.ModelMap;
+import org.openapitools.codegen.model.ModelsMap;
+import org.openapitools.codegen.model.OperationsMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +72,6 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 		cliOptions.add(new CliOption(SERVICE_PORT, "Port of service to use for @enable"));
 		cliOptions.add(new CliOption("suppressIgnoreUnknown", "Don't add the ignore unknown to the generated models"));
 
-
 		if (this.typeMapping == null) {
 			this.typeMapping = new HashMap<>();
 		}
@@ -80,16 +82,6 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 		embeddedTemplateDir = templateDir = JERSEY2_TEMPLATE_FOLDER;
 	}
 
-//  @Override
-//  public List<CodegenArgument> getLanguageArguments() {
-//    List<CodegenArgument> args = super.getLanguageArguments() == null ? new ArrayList<>() : new ArrayList<>(super
-//    .getLanguageArguments());
-//    CodegenArgument e = new CodegenArgument();
-//    e.setOption(CodegenConstants.API_TESTS_OPTION);
-//    e.setValue("false");
-//    args.add(e);
-//    return args;
-//  }
 
 	public String getName() {
 		return LIBRARY_NAME;
@@ -249,14 +241,14 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 
 
 	@Override
-	public Map<String, Object> postProcessOperationsWithModels(Map<String, Object> objs, List<Object> allModels) {
+	public OperationsMap postProcessOperationsWithModels(OperationsMap objs, List<ModelMap> allModels) {
 		super.postProcessOperationsWithModels(objs, allModels);
 
 		List<CodegenOperation> codegenOperations = getCodegenOperations(objs);
 
 		// check if the imports of the APIs have classes that have changed their package names
 		// and if so, replace them
-		List<Map<String, String>> imports = (List<Map<String, String>>)objs.get("imports");
+		List<Map<String, String>> imports = objs.getImports();
 		for (Map<String, String> anImport : imports) {
 			if (anImport.containsKey("import") && anImport.containsKey("classname")) {
 				String clazzName = anImport.get("classname");
@@ -277,9 +269,7 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 		if (baseUrlOverride != null && objs.containsKey("commonPath") && objs.get("commonPath").toString().startsWith(baseUrlOverride)) {
 			String commonPath = objs.get("commonPath").toString().substring(baseUrlOverride.length());
 
-			codegenOperations.forEach(co -> {
-				co.path = commonPath + co.path;
-			});
+			codegenOperations.forEach(co -> co.path = commonPath + co.path);
 
 			objs.put("commonPath", baseUrlOverride);
 		}
@@ -292,7 +282,7 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 			objs.put(SERVICE_DEFAULT_URL, additionalProperties.get(SERVICE_DEFAULT_URL));
 		}
 
-		String className = ((Map<String, Object>)objs.get("operations")).get("classname").toString();
+		String className = objs.getOperations().getClassname();
 
 		for (CodegenOperation op : codegenOperations) {
 			// need to ensure the path if it has params as <> that it uses {} instead
@@ -357,9 +347,7 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 
 			op.responses.stream().filter(r -> r.is2xx && !"200".equalsIgnoreCase(r.code)
 					&& op.returnType != null && op.returnType.equals(r.dataType)).findFirst()
-				.ifPresent(resp -> {
-					op.vendorExtensions.put("statusCode", resp.code);
-				});
+				.ifPresent(resp -> op.vendorExtensions.put("statusCode", resp.code));
 
 			if (op.responses.stream().noneMatch(r -> r.is2xx) ) {
 				op.vendorExtensions.remove("x-java-is-response-void");
@@ -368,9 +356,10 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 
 			if ("void".equals(op.returnType) && !op.vendorExtensions.containsKey("statusCode")) {
 				// if this is returning void, it will in fact return a 204, so lets find the first 2xx code and tag this method
-				op.responses.stream().filter(r -> r.is2xx && "void".equals(r.dataType)).findFirst().ifPresent(resp -> {
-					op.vendorExtensions.put("statusCode", resp.code);
-				});
+				op.responses.stream()
+					.filter(r -> r.is2xx && "void".equals(r.dataType))
+					.findFirst()
+					.ifPresent(resp -> op.vendorExtensions.put("statusCode", resp.code));
 			}
 		}
 
@@ -401,24 +390,24 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 	}
 
 	@Override
-	public Map<String, Object> postProcessAllModels(Map<String, Object> objs) {
-		Map<String, Object> newObjs = super.postProcessAllModels(objs);
+	public Map<String, ModelsMap> postProcessAllModels(Map<String, ModelsMap> originalAllModels) {
+		Map<String, ModelsMap> allModels = super.postProcessAllModels(originalAllModels);
 
-		newObjs.keySet().forEach(modelName -> {
-			Map<String, Object> info = (Map<String, Object>)newObjs.get(modelName);
+		allModels.keySet().forEach(modelCollectionName -> {
+			ModelsMap info = allModels.get(modelCollectionName);
 
 			newImportsBecausePackageOverrides.forEach(pkg -> {
 				if (!pkg.equals(info.get("package"))) {
 					Map<String, String> newImports = new HashMap<>();
 					newImports.put("import", pkg + ".*");
-					List<Map<String, String>> imports = (List<Map<String, String>>)info.get("imports");
+					List<Map<String, String>> imports = info.getImports();
 					imports.add(newImports);
 				}
 			});
 
-			Set<String> extraImports = checkForMapKeyOverride(modelName, newObjs);
+			Set<String> extraImports = checkForMapKeyOverride(modelCollectionName, allModels);
 			// now walk through all the imports and re-write them
-			List<Map<String, String>> importStatements = (List<Map<String, String>>)info.get("imports");
+			List<Map<String, String>> importStatements = info.getImports();
 			final String prefix = modelPackage();
 
 			importStatements.forEach(statement -> {
@@ -446,7 +435,7 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 
 		});
 
-		return newObjs;
+		return allModels;
 	}
 
 	private static class XPropertyRef {
@@ -459,11 +448,11 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 		}
 	}
 
-	private Set<String> checkForMapKeyOverride(String modelName, Map<String, Object> modelMap) {
+	private Set<String> checkForMapKeyOverride(String modelName, Map<String, ModelsMap> modelMap) {
 		Set<String> extraImports = new HashSet<>();
 
-		Map<String, Object> info = (Map<String, Object>)modelMap.get(modelName);
-		List<Map<String, Object>> models = (List<Map<String, Object>>) info.get("models");
+		ModelsMap info = modelMap.get(modelName);
+		List<ModelMap> models = info.getModels();
 		if (models.size() == 1) {
 			CodegenModel model = (CodegenModel) models.get(0).get("model");
 			if (model != null) {
@@ -475,15 +464,15 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 		return extraImports;
 	}
 
-	private void resetMapOverrideKey(Map<String, Object> modelMap, Set<String> extraImports, CodegenProperty p) {
+	private void resetMapOverrideKey(Map<String, ModelsMap> modelMaps, Set<String> extraImports, CodegenProperty p) {
 		if (p.isMap) {
 			String keyType = "String";
 			if (!p.getVendorExtensions().containsKey("x-property-ref")) {
 				p.getVendorExtensions().put("x-property-ref", keyType);
 			} else {
 				String ref = p.getVendorExtensions().get("x-property-ref").toString();
-				XPropertyRef refName = ref.startsWith("#/components") ? extractModelFromRef(modelMap, ref) :
-					extractModelFromShortName(modelMap, ref);
+				XPropertyRef refName = ref.startsWith("#/components") ? extractModelFromRef(modelMaps, ref) :
+					extractModelFromShortName(modelMaps, ref);
 				if (refName != null) {
 					extraImports.add(refName.importPath);
 					keyType = refName.model.classname;
@@ -495,11 +484,11 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 		}
 	}
 
-	private XPropertyRef extractModelFromShortName(Map<String, Object> info, String ref) {
-		Map<String, Map<String, Object>> modelInfo = (Map<String, Map<String, Object>>) info.get(ref);
+	private XPropertyRef extractModelFromShortName(Map<String, ModelsMap> info, String ref) {
+		ModelsMap modelInfo = info.get(ref);
 
 		if (modelInfo != null) {
-			List<Map<String, Object>> models = (List<Map<String, Object>>) modelInfo.get("models");
+			List<ModelMap> models = modelInfo.getModels();
 			if (models != null && models.size() == 1) {
 				CodegenModel model = (CodegenModel) models.get(0).get("model");
 				String importPath = (String) models.get(0).get("importPath");
@@ -515,7 +504,7 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 	/**
 	 * here we have to cut off the stuff and then return the model from the short name
 	 */
-	private XPropertyRef extractModelFromRef(Map<String, Object> info, String ref) {
+	private XPropertyRef extractModelFromRef(Map<String, ModelsMap> info, String ref) {
 		String shortName = ref.substring(ref.lastIndexOf("/")+1);
 		return extractModelFromShortName(info, shortName);
 	}
@@ -523,11 +512,11 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Map<String, Object> postProcessModels(Map<String, Object> objs) {
-		final Map<String, Object> newObjs = super.postProcessModels(objs);
+	public ModelsMap postProcessModels(ModelsMap originalModels) {
+		final ModelsMap newModels = super.postProcessModels(originalModels);
 
-		List<Map<String, Object>> models = (List<Map<String, Object>>) newObjs.get("models");
-		List<HashMap<String, String>> imports = (List<HashMap<String, String>>) newObjs.get("imports");
+		List<ModelMap> models = newModels.getModels();
+		List<Map<String, String>> imports = newModels.getImports();
 		imports.forEach((map) -> {
 			if (map.containsKey("import")) {
 				if (map.get("import").startsWith("io.swagger")) {
@@ -538,16 +527,17 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 		imports.removeIf(Map::isEmpty);
 
 		models.forEach(model -> {
-			CodegenModel m = (CodegenModel) model.get("model");
+			CodegenModel m = model.getModel();
 			modelNames.put(m.classname, m);
 			if (m.getVendorExtensions() != null && m.getVendorExtensions().containsKey("x-package")) {
 				packageOverrideModelNames.put(m.classname, m);
 				String packageName = m.getVendorExtensions().get("x-package").toString();
-				newObjs.put("package", packageName);
+
+				newModels.put("package", packageName);
 				model.put("importPath", packageName);
 				newImportsBecausePackageOverrides.add(packageName);
 			} else {
-				newObjs.put("package", this.modelPackage());
+				newModels.put("package", this.modelPackage());
 			}
 
 			m.vars.forEach(p -> {
@@ -571,7 +561,7 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 			}
 		});
 
-		return newObjs;
+		return newModels;
 	}
 
 	@Override
