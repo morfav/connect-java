@@ -59,8 +59,8 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#parcela
   public static final String SERIALIZED_NAME_{{nameInSnakeCase}} = "{{baseName}}";
   @SerializedName(SERIALIZED_NAME_{{nameInSnakeCase}})
   {{/gson}}
-  {{#required}}@org.jetbrains.annotations.NotNull{{/required}}{{^required}}@org.jetbrains.annotations.Nullable{{/required}}
-  private {{{datatypeWithEnum}}} {{name}}{{#defaultValue}} = {{{.}}}{{/defaultValue}};
+    {{^isNullable}}{{#required}}@org.jetbrains.annotations.NotNull{{/required}}{{^required}}@org.jetbrains.annotations.Nullable{{/required}}{{/isNullable}}{{#isNullable}}@org.jetbrains.annotations.Nullable{{/isNullable}}
+  private {{{datatypeWithEnum}}} {{name}}{{^isNullable}}{{#defaultValue}} = {{{.}}}{{/defaultValue}}{{/isNullable}};
 
   {{/vars}}
   {{#parcelableModel}}
@@ -86,7 +86,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#parcela
   {{/parcelableModel}}
   {{#vars}}
   {{^isReadOnly}}
-  public {{classname}} {{name}}({{#required}}@org.jetbrains.annotations.NotNull{{/required}}{{^required}}@org.jetbrains.annotations.Nullable{{/required}} {{{datatypeWithEnum}}} {{name}}) {
+  public {{classname}} {{name}}({{^isNullable}}{{#required}}@org.jetbrains.annotations.NotNull{{/required}}{{^required}}@org.jetbrains.annotations.Nullable{{/required}}{{/isNullable}}{{#isNullable}}@org.jetbrains.annotations.Nullable{{/isNullable}} {{{datatypeWithEnum}}} {{name}}) {
     this.{{name}} = {{name}};
     return this;
   }
@@ -140,7 +140,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#parcela
   }
   {{^isReadOnly}}
 
-  public void {{setter}}({{#required}}@org.jetbrains.annotations.NotNull{{/required}}{{^required}}@org.jetbrains.annotations.Nullable{{/required}} {{{datatypeWithEnum}}} {{name}}) {
+  public void {{setter}}({{^isNullable}}{{#required}}@org.jetbrains.annotations.NotNull{{/required}}{{^required}}@org.jetbrains.annotations.Nullable{{/required}}{{/isNullable}}{{#isNullable}}@org.jetbrains.annotations.Nullable{{/isNullable}} {{{datatypeWithEnum}}} {{name}}) {
     this.{{name}} = {{name}};
   }
   {{/isReadOnly}}
