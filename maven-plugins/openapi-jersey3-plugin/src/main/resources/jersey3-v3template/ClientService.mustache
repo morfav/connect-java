@@ -73,7 +73,7 @@ import javax.ws.rs.*;
     {{#isDeprecated}}
       @Deprecated
     {{/isDeprecated}}
-    public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}Response {{/returnType}}{{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>bodyParams}}{{>formParams}}{{^-last}}, {{/-last}}{{/allParams}});
+    public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}Response {{/returnType}}{{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>bodyParams}}{{>formParams}}{{>headerParams}}{{^-last}}, {{/-last}}{{/allParams}});
 
     /**
     * {{summary}}
@@ -99,7 +99,7 @@ import javax.ws.rs.*;
     {{#isDeprecated}}
       @Deprecated
     {{/isDeprecated}}
-    public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}Response {{/returnType}}{{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>bodyParams}}{{>formParams}}{{^-last}}, {{/-last}}{{/allParams}}{{#hasParams}}, {{/hasParams}}Map<String, String> extraHeaders);
+    public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}Response {{/returnType}}{{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>bodyParams}}{{>formParams}}{{>headerParams}}{{^-last}}, {{/-last}}{{/allParams}}{{#hasParams}}, {{/hasParams}}Map<String, String> extraHeaders);
 
 
     /**

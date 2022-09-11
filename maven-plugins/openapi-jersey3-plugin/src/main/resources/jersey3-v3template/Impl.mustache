@@ -70,7 +70,7 @@ public class {{classname}}ServiceImpl implements {{classname}}, {{classname}}Cli
   {{#isDeprecated}}
     @Deprecated
   {{/isDeprecated}}
-  public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}Response {{/returnType}}{{operationId}}({{#allParams}}{{>serviceQueryParams}}{{>pathParams}}{{>serviceBodyParams}}{{>serviceFormParams}}{{^-last}}, {{/-last}}{{/allParams}}) {
+  public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}Response {{/returnType}}{{operationId}}({{#allParams}}{{>serviceQueryParams}}{{>pathParams}}{{>serviceBodyParams}}{{>serviceFormParams}}{{>serviceHeaderParams}}{{^-last}}, {{/-last}}{{/allParams}}) {
   {{#returnType}}
     {{^vendorExtensions.x-java-is-response-void}}return {{/vendorExtensions.x-java-is-response-void}}
      {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}})
@@ -101,7 +101,7 @@ public class {{classname}}ServiceImpl implements {{classname}}, {{classname}}Cli
   {{#isDeprecated}}
     @Deprecated
   {{/isDeprecated}}
-  public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}Response {{/returnType}}{{operationId}}({{#allParams}}{{>serviceQueryParams}}{{>pathParams}}{{>serviceBodyParams}}{{>serviceFormParams}}{{^-last}}, {{/-last}}{{/allParams}}{{#hasParams}}, {{/hasParams}}Map<String, String> extraHeaders) {
+  public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}Response {{/returnType}}{{operationId}}({{#allParams}}{{>serviceQueryParams}}{{>pathParams}}{{>serviceBodyParams}}{{>serviceFormParams}}{{>serviceHeaderParams}}{{^-last}}, {{/-last}}{{/allParams}}{{#hasParams}}, {{/hasParams}}Map<String, String> extraHeaders) {
   {{#returnType}}
     {{^vendorExtensions.x-java-is-response-void}}return {{/vendorExtensions.x-java-is-response-void}}
     {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}{{#hasParams}}, {{/hasParams}}extraHeaders)
