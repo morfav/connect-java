@@ -9,7 +9,9 @@ The current authors of this repository are:
 - _Richard Vowles_, Software Developer (https://www.linkedin.com/in/richard-vowles-72035193/)
 
 == changes
-& 8.3 - support for formal declared headers in clients
+* 8.4 - support for CloudEvents annotations `x-cloudevent-type` and `x-cloudevent-subject` generates static strings
+in the model class holding that data.
+* 8.3 - support for formal declared headers in clients
 * 8.2 - support nullable: true as a field on a non-required field to allow it to be specifically null (usually lists and maps where they were always default empty)
 * 8.1 - move to 6.0.1 of the OpenAPI plugin standard, and default to allow enums to be null.
 * 7.15 - fixing issue with ReturnStatus code if returning no data and you want a 200 return. Added in support

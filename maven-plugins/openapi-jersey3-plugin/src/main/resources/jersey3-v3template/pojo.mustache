@@ -7,8 +7,13 @@
 public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#parcelableModel}}implements Parcelable {{#serializableModel}}, Serializable {{/serializableModel}}{{/parcelableModel}}{{^parcelableModel}}{{#serializableModel}}implements Serializable {{/serializableModel}}{{/parcelableModel}}{
 {{#serializableModel}}
   private static final long serialVersionUID = 1L;
-
 {{/serializableModel}}
+{{#vendorExtensions.x-cloudevent-type}}
+	public static final String CLOUD_EVENT_TYPE = "{{vendorExtensions.x-cloudevent-type}}";
+{{/vendorExtensions.x-cloudevent-type}}
+{{#vendorExtensions.x-cloudevent-subject}}
+	public static final String CLOUD_EVENT_SUBJECT = "{{vendorExtensions.x-cloudevent-subject}}";
+{{/vendorExtensions.x-cloudevent-subject}}
   {{#vars}}
     {{#isEnum}}
     {{^isContainer}}

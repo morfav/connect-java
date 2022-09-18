@@ -277,6 +277,9 @@ paths:
 components:
   schemas:
     InitiateSubscriptionRequest:
+      type: object
+      x-cloudevent-type: publish-feature-v1
+      x-cloudevent-subject: io.featurehub.events.feature-values
       properties:
         id:
           x-basename: longIdName
