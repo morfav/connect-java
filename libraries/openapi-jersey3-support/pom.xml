@@ -35,8 +35,18 @@
     <tag>HEAD</tag>
   </scm>
 
+  <properties>
+    <assertj-core.version>3.16.1</assertj-core.version>
+    <junit-jupiter.version>5.7.0</junit-jupiter.version>
+  </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations</artifactId>
+      <version>23.0.0</version>
+    </dependency>
+
     <dependency>
       <groupId>cd.connect.composites.java</groupId>
       <artifactId>connect-composite-jackson</artifactId>
@@ -52,9 +62,15 @@
     </dependency>
 
     <dependency>
-      <groupId>cd.connect.composites.java</groupId>
-      <artifactId>connect-composite-test</artifactId>
-      <version>[2,3)</version>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${assertj-core.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit-jupiter.version}</version>
       <scope>test</scope>
     </dependency>
 

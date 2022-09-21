@@ -33,8 +33,17 @@ import javax.validation.constraints.*;
 import javax.validation.Valid;
 {{/jersey2}}
 {{/useBeanValidation}}
+
 {{#models}}
 {{#model}}
-{{#isEnum}}{{>modelEnum}}{{/isEnum}}{{^isEnum}}{{>pojo}}{{/isEnum}}
+{{#vendorExtensions.x-cloudevent-type}}
+	import cd.connect.cloudevents.CloudEventType;
+	import cd.connect.cloudevents.TaggedCloudEvent;
+{{/vendorExtensions.x-cloudevent-type}}
+{{#vendorExtensions.x-cloudevent-subject}}
+	import cd.connect.cloudevents.CloudEventSubject;
+{{/vendorExtensions.x-cloudevent-subject}}
+
+	{{#isEnum}}{{>modelEnum}}{{/isEnum}}{{^isEnum}}{{>pojo}}{{/isEnum}}
 {{/model}}
 {{/models}}
