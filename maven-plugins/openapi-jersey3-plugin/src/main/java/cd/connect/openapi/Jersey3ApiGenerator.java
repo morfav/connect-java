@@ -566,7 +566,8 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 
 	@Override
 	public void postProcessFile(File file, String fileType) {
-		if ("java".equals(FilenameUtils.getExtension(file.toString()))) {
+		if ("java".equals(FilenameUtils.getExtension(file.toString())) &&
+			!"off".equals(additionalProperties.get("google-format"))) {
 			try {
 				final FileReader ifile = new FileReader(file);
 				String inputFile = IOUtils.toString(ifile);
@@ -583,8 +584,9 @@ public class Jersey3ApiGenerator extends AbstractJavaJAXRSServerCodegen implemen
 					ofile.flush();
 					ofile.close();
 				}
-			} catch (FormatterException | IOException e) {
-				log.error("Failed to format file `{}`", file.getAbsolutePath(), e);
+			} catch (Exception e) {
+				log.error("Failed to format file `{}` - if using JDK16 include a .mvn/jvm.config  like this project  or turn " +
+					" off post processing",	file.getAbsolutePath(),	e);
 			}
 		}
 	}
