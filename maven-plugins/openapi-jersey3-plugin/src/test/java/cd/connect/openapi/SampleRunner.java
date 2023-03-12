@@ -1,22 +1,11 @@
 package cd.connect.openapi;
 
-import io.swagger.parser.OpenAPIParser;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.parser.core.models.ParseOptions;
 import org.junit.Test;
-import org.openapitools.codegen.ClientOptInput;
-import org.openapitools.codegen.DefaultGenerator;
 import org.openapitools.codegen.OpenAPIGenerator;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 
 public class SampleRunner {
