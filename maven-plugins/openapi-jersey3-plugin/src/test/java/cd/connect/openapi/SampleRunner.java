@@ -71,4 +71,27 @@ public class SampleRunner {
     System.out.format("%s%n", files.get("FileServiceClient.java").getAbsolutePath());
     System.out.format("%s%n", files.get("FileServiceServiceImpl.java").getAbsolutePath());
   }
+
+  @Test
+  public void testNestedEnum() throws Exception {
+
+    String outputPath = "target/generated-test-sources/openapi/src/gen/java";
+    Files.createDirectories(Paths.get(outputPath));
+
+    OpenAPI openAPI = new OpenAPIParser()
+        .readLocation("nested-enum.yaml", null, new ParseOptions()).getOpenAPI();
+
+    codegen.setOutputDir(outputPath);
+
+    ClientOptInput input = new ClientOptInput()
+        .openAPI(openAPI)
+        .config(codegen);
+
+    DefaultGenerator generator = new DefaultGenerator();
+    Map<String, File> files = generator.opts(input).generate().stream()
+        .collect(Collectors.toMap(File::getName, Function.identity()));
+
+    System.out.format("%s%n", files.get("NestedEnumResponse.java").getAbsolutePath());
+  }
+
 }
